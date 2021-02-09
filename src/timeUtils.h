@@ -1,0 +1,6 @@
+#include <time.h>
+
+#define SECONDS_IN_MINUTE 60
+#define SECONDS_IN_HOUR 3600
+#define HOURS_IN_DAY 24
+#define SECONDS_IN_DAY SECONDS_IN_HOUR * HOURS_IN_DAY
