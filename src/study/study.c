@@ -1,8 +1,8 @@
 #include "study.h"
 
 
-void study(time_t       studyTime, 
-           noteList*    noteListP)
+void startStudy(time_t       studyTime, 
+                noteList*    noteListP)
 {
     note* notesToStudy[MAX_NOTES_TO_STUDY];
 
@@ -55,7 +55,7 @@ int studyLoop(unsigned int  numOfNotesToStudy,
         switch(q)
         {
             case 0:
-                //printf("Skipping...\n");
+                continue;
             break;
             case 1:
                 currentNoteP->interval = 0;
@@ -86,7 +86,7 @@ int studyLoop(unsigned int  numOfNotesToStudy,
                                                                                                     // -1 is to get some time buffer for check
                 notesToStudy[i] = NULL; //This one is done
             break;
-            case '9':
+            case 9:
                 return -1;
             break;
             default:
@@ -99,13 +99,83 @@ int studyLoop(unsigned int  numOfNotesToStudy,
     return numOfActiveNotes;
 }
 
+
+void showTextFront(WINDOW* frontWinP, int contentHeight, char* front, int maxX)
+{
+    simpleBox(frontWinP, contentHeight, maxX);
+    wmove(frontWinP, 2,3);
+    wprintw(frontWinP, front);
+    wrefresh(frontWinP);
+}
+
+
+void showTextBack(WINDOW* backWinP, int contentHeight, char* back, int maxX)
+{
+    simpleBox(backWinP, contentHeight, maxX);
+    wmove(backWinP, 2, 3);
+    wprintw(backWinP, back);
+    wrefresh(backWinP);
+}
+
+
+void showInBrowser(const char* uri)
+{
+    char buffer[1050];
+    sprintf(buffer, "firefox %s &> /dev/null", uri);
+    system(buffer);
+}
+
+
+void showQualityInput(WINDOW* qualityWinP, int qualityWinHeight, int maxX)
+{
+    simpleBox(qualityWinP, qualityWinHeight, maxX);
+    wmove(qualityWinP, 1, 1);
+    wprintw(qualityWinP, "0 (Skip) - 1 (again) - 2 (ok) - 3 (Good) - 4 (Easy) - 9 (Exit)");
+    wrefresh(qualityWinP);
+}
+
+
+void clearAllStudyWindows(WINDOW* frontWinP, WINDOW* backWinP, WINDOW* qualityWinP)
+{
+    werase(frontWinP);
+    werase(backWinP);
+    werase(qualityWinP);
+
+    wrefresh(frontWinP);
+    wrefresh(backWinP);
+    wrefresh(qualityWinP);
+
+    delwin(backWinP);
+    delwin(frontWinP);
+    delwin(qualityWinP);
+}
+
+
+int getQualityInput()
+{
+    int gottenQualityInput = 0;
+    int quality;
+
+    while(!gottenQualityInput)
+    {
+        quality = getch() - 48;
+        if(quality <= 5 && quality >= 1 || quality == 9)
+        {
+            gottenQualityInput = 1;
+        }
+    }
+
+    return quality;
+}
+
+
 int studyNote(note* currentNoteP)
 {
     char buffer[1050];
 
     int maxY, maxX;
     
-    int qualityWinHeight = 10;
+    int qualityWinHeight = 5;
 
     getmaxyx(stdscr, maxY, maxX);
 
@@ -120,53 +190,33 @@ int studyNote(note* currentNoteP)
     switch(currentNoteP->type)
     {
         case TEXT:
-            simpleBox(frontWinP, contentHeight, maxX);
-            wmove(frontWinP, 2,3);
-            wprintw(frontWinP, currentNoteP->front);
-            wrefresh(frontWinP);
+            showTextFront(frontWinP, contentHeight, currentNoteP->front, maxX);
 
-            getch();
+            getch(); //Any keypress to show answer
 
-            simpleBox(backWinP, contentHeight, maxX);
-            wmove(backWinP, 2, 3);
-            wprintw(backWinP, currentNoteP->back);
-            wrefresh(backWinP);
+            showTextBack(backWinP, contentHeight, currentNoteP->back, maxX);
 
-            simpleBox(qualityWinP, qualityWinHeight, maxX);
-            wmove(qualityWinP, 1, 1);
-            wprintw(qualityWinP, "0 - 1 - 2 - 3 - 4");
-            wrefresh(qualityWinP);
+            showQualityInput(qualityWinP, qualityWinHeight, maxX);
 
         break;
 
         case BROWSER:
             ;
-            sprintf(buffer, "firefox %s &> /dev/null", currentNoteP->front);
-            system(buffer);
+            showInBrowser(currentNoteP->front);
 
-            printf("(SPACE) show answer (opens another web page)");
-            while(fgetc(stdin) != ' ');
+            getch(); //Any keypress to show answer
 
-            sprintf(buffer, "firefox %s &> /dev/null", currentNoteP->back);
-            system(buffer);
+            showInBrowser(currentNoteP->back);
         break;
 
         case TEXT_BROWSER:
-            simpleBox(frontWinP, contentHeight, maxX);
-            wmove(frontWinP, 2,3);
-            wprintw(frontWinP, currentNoteP->front);
-            wrefresh(frontWinP);
+            showTextFront(frontWinP, contentHeight, currentNoteP->front, maxX);
 
             getch();
 
-            simpleBox(qualityWinP, qualityWinHeight, maxX);
-            wmove(qualityWinP, 1, 1);
-            wprintw(qualityWinP, "0 - 1 - 2 - 3 - 4");
-            wrefresh(qualityWinP);
+            showQualityInput(qualityWinP, qualityWinHeight, maxX);
 
-            
-            sprintf(buffer, "nohup &> /dev/null firefox %s &> /dev/null", currentNoteP->back);
-            system(buffer);
+            showInBrowser(currentNoteP->back);
         break;
 
         default:
@@ -174,30 +224,10 @@ int studyNote(note* currentNoteP)
         break;
     }
 
-    int gottenInput = 0;
-    int quality;
-
-    while(!gottenInput)
-    {
-        quality = getch() - 48;
-        if(quality <= 5 && quality >= 1 || quality == 9)
-        {
-            gottenInput = 1;
-        }
-    }
+    int quality = getQualityInput();
      
+    clearAllStudyWindows(frontWinP, backWinP, qualityWinP);
 
-    werase(frontWinP);
-    werase(backWinP);
-    werase(qualityWinP);
-
-    wrefresh(frontWinP);
-    wrefresh(backWinP);
-    wrefresh(qualityWinP);
-
-    delwin(backWinP);
-    delwin(frontWinP);
-    delwin(qualityWinP);
 
     return quality;
 }

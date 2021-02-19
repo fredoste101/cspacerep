@@ -16,6 +16,8 @@
 #include "study/memAlgo.h"
 
 
+#define VERSION 0
+
 #define MAX_NUM_OF_FLASHCARD_PILES 7
 
 
@@ -27,7 +29,7 @@ typedef enum
   FLASHCARD_STUDY,
   CREATE_NOTE,
   CHANGE_NOTE,
-  REMOVE_NOTE
+  DELETE_NOTE
 } MAIN_MENU_CHOICES;
 
 
@@ -45,9 +47,9 @@ void getOffsetInDayToStudy(programConfiguration* configP, int maxY, int maxX);
 
 void printConfiguration(programConfiguration* configP, int maxY, int maxX);
 
-int createNote(note* noteP, unsigned int noteId);
+int createNewNote(note* noteP, unsigned int noteId);
 
-void flashCardStudy(noteList* notesP);
+void flashcardStudy(noteList* notesP);
 
 int isNoteIdInList(noteList* noteListP, unsigned int id);
 
@@ -57,8 +59,6 @@ void initNotes(noteList* notesP);
 
 time_t getStudyTime(time_t currentTime, 
                     unsigned int offsetInDayToStudy);
-
-
 
 
 void listNotes(noteList* noteListP);
@@ -71,6 +71,21 @@ void changeNote(noteList* noteListP);
 int initConfiguration(programConfiguration* configP, int maxY, int maxX);
 
 
+void quit(noteList* notesP, 
+          WINDOW*   headerWinP, 
+          WINDOW*   menuWinP);
+
+
+void study(programConfiguration* configP,
+                noteList* notesP);
+
+
+void createNote(programConfiguration* configP,
+                noteList* notesP);
+
+
+void deleteNote(programConfiguration* configP,
+                noteList* notesP);
 
 
 int main()
@@ -121,11 +136,7 @@ int main()
         switch(choice - 48)
         {
             case QUIT:
-                saveNotesToFile(&notes);
-                delwin(headerWinP);
-                delwin(menuWinP);
-                refresh();
-                endwin();
+                quit(&notes, headerWinP, menuWinP);
                 return 0;
             break;
 
@@ -133,50 +144,24 @@ int main()
                 listNotes(&notes);
             break;
 
-            case STUDY: break;
-                const time_t currentTime = time(NULL);
-                time_t studyTime = getStudyTime(currentTime, config.offsetInDayToStudy);
-
-                study(studyTime, &notes);
+            case STUDY:
+                study(&config, &notes);
             break;
 
             case FLASHCARD_STUDY:
-                flashCardStudy(&notes);
+                flashcardStudy(&notes);
             break;
 
             case CREATE_NOTE: break; //create note
-                printf("\nCreate note\n");
-
-                note newNote;
-
-                if(createNote(&newNote, config.nextNoteId))
-                {
-                    config.nextNoteId++;
-                    config.numOfNotes++;
-                    saveProgrammingConfigFile(&config);
-                    addNote(&newNote, &notes);
-
-                    saveNotesToFile(&notes);
-                }
+                createNote(&config, &notes);
             break;
 
             case CHANGE_NOTE: break;
                 changeNote(&notes);
             break;
 
-            case REMOVE_NOTE: break;//Remove note
-                printf("\nNote id:");
-                
-                scanf("%d", &choice);
-
-                if(0 <= choice && choice < notes.size)
-                {
-                    removeNote(&notes, choice);
-                }
-                else
-                {
-                    printf("Illegal note id given\n");
-                }
+            case DELETE_NOTE: break;//Remove note
+                deleteNote(&config, &notes);
             break;
 
             default:
@@ -187,6 +172,299 @@ int main()
 
     return 0;
 }
+
+
+void quit(noteList* notesP, 
+          WINDOW*   headerWinP, 
+          WINDOW*   menuWinP)
+{
+    saveNotesToFile(notesP);
+    delwin(headerWinP);
+    delwin(menuWinP);
+    refresh();
+    endwin();
+}
+
+
+void listNotes(noteList* noteListP)
+{
+    int x, y;
+    getmaxyx(stdscr, y, x);
+
+    int winHeight = y - HEADER_HEIGHT;
+    int winWidth = x;
+    int winYPos = HEADER_HEIGHT;
+    int winXPos = 0;
+
+    WINDOW* noteListWinP = newwin(winHeight, winWidth, winYPos, winXPos);
+    refresh();
+
+    simpleBox(noteListWinP, winHeight, winWidth);
+    wrefresh(noteListWinP);
+
+    wmove(noteListWinP, 1, 1);
+    wprintw(noteListWinP, "  ID  |   FRONT   |   BACK   | EF  | INTERVAL |       TIME       |");
+    wmove(noteListWinP, getcury(noteListWinP) + 1, 1);
+    wprintw(noteListWinP, "------------------------------------------------------------------");
+
+    
+    unsigned int i;
+
+    for(i = 0; i < noteListP->size; i++)
+    {
+        note* currentNoteP = &noteListP->list[i];
+
+        const time_t tempT = currentNoteP->nextStudyTime;
+
+        struct tm* ltP = localtime(&tempT);
+
+        struct tm calendarTime;
+        memcpy(&calendarTime, ltP, sizeof(struct tm));
+
+        char tmpFront[9]    = {'\0'};
+        char tmpBack[9]     = {'\0'};
+
+        unsigned int maxStrlen = 8;
+
+        if(strlen(currentNoteP->front) < 8)
+        {
+            maxStrlen = strlen(currentNoteP->front) - 1;
+        }
+
+        strncpy(tmpFront, currentNoteP->front, maxStrlen);
+
+        maxStrlen = 7;
+
+        if(strlen(currentNoteP->back) < 7)
+        {
+            maxStrlen = strlen(currentNoteP->back);
+        }
+
+        strncpy(tmpBack, currentNoteP->back, maxStrlen);
+
+        
+        mvwprintw(noteListWinP, getcury(noteListWinP) + 1, 1, " %4u | %9s | %8s | %0.1f | %8d | %4d-%02d-%02d %02d:%02d |", 
+                currentNoteP->id, 
+                tmpFront, 
+                tmpBack,
+                currentNoteP->ef,
+                currentNoteP->interval,
+                calendarTime.tm_year + 1900,
+                calendarTime.tm_mon + 1,
+                calendarTime.tm_mday + 1,
+                calendarTime.tm_hour,
+                calendarTime.tm_min);
+
+        mvwprintw(noteListWinP, getcury(noteListWinP) + 1, 1, "------------------------------------------------------------------");
+    }
+
+    mvwprintw(noteListWinP, getcury(noteListWinP) + 1, 1, "Notes: %u", noteListP->size);
+    mvwprintw(noteListWinP, getcury(noteListWinP) + 1, 1, "------------------------------------------------------------------");
+
+
+    wrefresh(noteListWinP);
+    getch();
+
+    werase(noteListWinP);
+    wrefresh(noteListWinP);
+    delwin(noteListWinP);
+
+}
+
+
+void study(programConfiguration* configP,
+                noteList* notesP)
+{
+    const time_t currentTime = time(NULL);
+    time_t studyTime = getStudyTime(currentTime, 
+                                    configP->offsetInDayToStudy);
+
+    startStudy(studyTime, notesP);
+}
+
+
+void showNoNotesToStudyWindow(WINDOW* noNotesToStudyWinP)
+{
+    refresh();
+    simpleBox(noNotesToStudyWinP, 5, 5);
+    wrefresh(noNotesToStudyWinP);
+    wmove(noNotesToStudyWinP, 1, 1);
+    wprintw(noNotesToStudyWinP, "No notes to study");
+    getch();
+    werase(noNotesToStudyWinP);
+    delwin(noNotesToStudyWinP);
+}
+
+
+void removeNoNotesToStudyWindow(WINDOW* noNotesToStudyWinP)
+{
+    werase(noNotesToStudyWinP);
+    delwin(noNotesToStudyWinP);
+}
+
+
+void flashcardStudy(noteList* notesP)
+{
+    if(notesP->size == 0)
+    {
+        WINDOW* noNotesToStudyWinP = newwin(5, 20, 5, 5);
+        showNoNotesToStudyWindow(noNotesToStudyWinP);
+        getch();
+        removeNoNotesToStudyWindow(noNotesToStudyWinP);
+    }
+    else
+    {
+        noteList flashcardPiles[MAX_NUM_OF_FLASHCARD_PILES];
+
+        memset(&flashcardPiles, 0, sizeof(noteList) * MAX_NUM_OF_FLASHCARD_PILES);
+
+        unsigned int i = 0;
+
+        for(i = 0; i < notesP->size; i++)
+        {
+            note tmpNote;
+
+            memcpy(&tmpNote, &notesP->list[i], sizeof(note));
+
+            addNote(&tmpNote, &flashcardPiles[0]);
+        }
+
+        while(1)
+        {
+            note* currentNoteP;
+
+            unsigned int flashcardPileIndex = 0;
+
+            //Find the first best note...
+            for(i = 0; i < MAX_NUM_OF_FLASHCARD_PILES; i++)
+            {
+                if(flashcardPiles[i].size > 0)
+                {
+                    currentNoteP = &flashcardPiles[i].list[0];  //We could randomize 0-size here instead to make it fun
+                    flashcardPileIndex = i;
+                    break;
+                }
+            }
+
+            int q = studyNote(currentNoteP);
+
+
+            fprintf(stderr, "! %d !", q);
+
+            if(q == 9)
+            {
+                break;
+            }
+            else
+            {
+                switch(q)
+                {
+                    case 1:
+                        //Do nothing
+                    break;
+                    case 2:
+                    case 3:
+                    case 4:
+                    case 5:
+                        ;
+                        note tmpNote;
+
+                        memcpy(&tmpNote, currentNoteP, sizeof(tmpNote));
+
+                        removeNote(&flashcardPiles[flashcardPileIndex], 0); //Always remove first as of now. since that one is always choosen now.
+
+                        int newFlashcardPileIndex = flashcardPileIndex + (q - 1);
+
+                        if(newFlashcardPileIndex >= MAX_NUM_OF_FLASHCARD_PILES)
+                        {
+                            newFlashcardPileIndex = MAX_NUM_OF_FLASHCARD_PILES - 1;
+                        }
+
+                        addNote(&tmpNote, &flashcardPiles[newFlashcardPileIndex]);
+
+                    break;
+                    default:
+                        //printf("\nUnknown option...\n");
+                    break;
+                }
+            }
+        }
+    }
+}
+
+
+void createNote(programConfiguration* configP,
+                noteList* notesP)
+{
+
+    note newNote;
+
+    if(createNewNote(&newNote, configP->nextNoteId))
+    {
+        configP->nextNoteId++;
+        configP->numOfNotes++;
+        saveProgrammingConfigFile(configP);
+        addNote(&newNote, notesP);
+
+        saveNotesToFile(notesP);
+    }
+}
+
+
+void changeNote(noteList* noteListP)
+{
+    printf("\nNote id:");
+
+    unsigned int noteId;
+
+    scanf("%d", &noteId);
+
+    noteId = isNoteIdInList(noteListP, noteId);
+   
+    if(noteId >= 0)
+    {
+        note* noteP = &noteListP->list[noteId];
+
+        char c;
+
+        //flush stdin
+        while ((c = getchar()) != '\n' && c != EOF);
+
+        printf("front: (%s)", noteP->front);
+        fgets(noteP->front, sizeof(noteP->front), stdin);
+
+        printf("back: (%s)", noteP->back);
+        fgets(noteP->back, sizeof(noteP->back), stdin);
+
+        removeNewlineAtEnd(noteP->front);
+        removeNewlineAtEnd(noteP->back);
+
+    }
+    else
+    {
+        printf("Illegal note id: %u given\n", noteId);
+    }
+}
+
+
+void deleteNote(programConfiguration* configP,
+                noteList* notesP)
+{
+    return;
+
+    int temp = 0;
+
+    if(0 <= temp && temp < notesP->size)
+    {
+        removeNote(notesP, temp);
+    }
+    else
+    {
+        //Could note remove note
+    }
+}
+
+
 
 
 void setDefaultConfigValues(programConfiguration* configP)
@@ -368,7 +646,7 @@ void printConfiguration(programConfiguration* configP, int maxY, int maxX)
 }
 
 
-int createNote(note* noteP, unsigned int noteId)
+int createNewNote(note* noteP, unsigned int noteId)
 {
     int noteType;
     printf("Type of note (0 - TEXT, 1 - BROWSER, 2 - TEXT_BROWSER)\n");
@@ -478,91 +756,6 @@ time_t getStudyTime(time_t currentTime,
 
 
 
-void listNotes(noteList* noteListP)
-{
-    int x, y;
-    getmaxyx(stdscr, y, x);
-
-    int winHeight = y - HEADER_HEIGHT;
-    int winWidth = x;
-    int winYPos = HEADER_HEIGHT;
-    int winXPos = 0;
-
-    WINDOW* noteListWinP = newwin(winHeight, winWidth, winYPos, winXPos);
-    refresh();
-
-    simpleBox(noteListWinP, winHeight, winWidth);
-    wrefresh(noteListWinP);
-
-    wmove(noteListWinP, 1, 1);
-    wprintw(noteListWinP, "  ID  |   FRONT   |   BACK   | EF  | INTERVAL |       TIME       |");
-    wmove(noteListWinP, getcury(noteListWinP) + 1, 1);
-    wprintw(noteListWinP, "------------------------------------------------------------------");
-
-    
-    unsigned int i;
-
-    for(i = 0; i < noteListP->size; i++)
-    {
-        note* currentNoteP = &noteListP->list[i];
-
-        const time_t tempT = currentNoteP->nextStudyTime;
-
-        struct tm* ltP = localtime(&tempT);
-
-        struct tm calendarTime;
-        memcpy(&calendarTime, ltP, sizeof(struct tm));
-
-        char tmpFront[9]    = {'\0'};
-        char tmpBack[9]     = {'\0'};
-
-        unsigned int maxStrlen = 8;
-
-        if(strlen(currentNoteP->front) < 8)
-        {
-            maxStrlen = strlen(currentNoteP->front) - 1;
-        }
-
-        strncpy(tmpFront, currentNoteP->front, maxStrlen);
-
-        maxStrlen = 7;
-
-        if(strlen(currentNoteP->back) < 7)
-        {
-            maxStrlen = strlen(currentNoteP->back);
-        }
-
-        strncpy(tmpBack, currentNoteP->back, maxStrlen);
-
-        
-        mvwprintw(noteListWinP, getcury(noteListWinP) + 1, 1, " %4u | %9s | %8s | %0.1f | %8d | %4d-%02d-%02d %02d:%02d |", 
-                currentNoteP->id, 
-                tmpFront, 
-                tmpBack,
-                currentNoteP->ef,
-                currentNoteP->interval,
-                calendarTime.tm_year + 1900,
-                calendarTime.tm_mon + 1,
-                calendarTime.tm_mday + 1,
-                calendarTime.tm_hour,
-                calendarTime.tm_min);
-
-        mvwprintw(noteListWinP, getcury(noteListWinP) + 1, 1, "------------------------------------------------------------------");
-    }
-
-    mvwprintw(noteListWinP, getcury(noteListWinP) + 1, 1, "Notes: %u", noteListP->size);
-    mvwprintw(noteListWinP, getcury(noteListWinP) + 1, 1, "------------------------------------------------------------------");
-
-
-    wrefresh(noteListWinP);
-    getch();
-
-    werase(noteListWinP);
-    wrefresh(noteListWinP);
-    delwin(noteListWinP);
-
-}
-
 
 /**
  * @brief if string ends with \n replaces that with \0
@@ -578,40 +771,6 @@ void removeNewlineAtEnd(char* string)
 }
 
 
-void changeNote(noteList* noteListP)
-{
-    printf("\nNote id:");
-
-    unsigned int noteId;
-
-    scanf("%d", &noteId);
-
-    noteId = isNoteIdInList(noteListP, noteId);
-   
-    if(noteId >= 0)
-    {
-        note* noteP = &noteListP->list[noteId];
-
-        char c;
-
-        //flush stdin
-        while ((c = getchar()) != '\n' && c != EOF);
-
-        printf("front: (%s)", noteP->front);
-        fgets(noteP->front, sizeof(noteP->front), stdin);
-
-        printf("back: (%s)", noteP->back);
-        fgets(noteP->back, sizeof(noteP->back), stdin);
-
-        removeNewlineAtEnd(noteP->front);
-        removeNewlineAtEnd(noteP->back);
-
-    }
-    else
-    {
-        printf("Illegal note id: %u given\n", noteId);
-    }
-}
 
 
 int isNoteIdInList(noteList* noteListP, unsigned int id)
@@ -629,100 +788,6 @@ int isNoteIdInList(noteList* noteListP, unsigned int id)
     return -1;
 }
 
-
-void flashCardStudy(noteList* notesP)
-{
-    if(notesP->size == 0)
-    {
-        WINDOW* noNotesToStudyWinP = newwin(5, 20, 5, 5);
-        refresh();
-        simpleBox(noNotesToStudyWinP, 5, 5);
-        wrefresh(noNotesToStudyWinP);
-        wmove(noNotesToStudyWinP, 1, 1);
-        wprintw(noNotesToStudyWinP, "No notes to study");
-        getch();
-        werase(noNotesToStudyWinP);
-        delwin(noNotesToStudyWinP);
-    }
-    else
-    {
-        noteList flashcardPiles[MAX_NUM_OF_FLASHCARD_PILES];
-
-        memset(&flashcardPiles, 0, sizeof(noteList) * MAX_NUM_OF_FLASHCARD_PILES);
-
-        unsigned int i = 0;
-
-        for(i = 0; i < notesP->size; i++)
-        {
-            note tmpNote;
-
-            memcpy(&tmpNote, &notesP->list[i], sizeof(note));
-
-            addNote(&tmpNote, &flashcardPiles[0]);
-        }
-
-        while(1)
-        {
-            note* currentNoteP;
-
-            unsigned int flashcardPileIndex = 0;
-
-            //Find the first best note...
-            for(i = 0; i < MAX_NUM_OF_FLASHCARD_PILES; i++)
-            {
-                if(flashcardPiles[i].size > 0)
-                {
-                    currentNoteP = &flashcardPiles[i].list[0];  //We could randomize 0-size here instead to make it fun
-                    flashcardPileIndex = i;
-                    break;
-                }
-            }
-
-            int q = studyNote(currentNoteP);
-
-
-            fprintf(stderr, "! %d !", q);
-
-            if(q == 9)
-            {
-                break;
-            }
-            else
-            {
-                switch(q)
-                {
-                    case 1:
-                        //Do nothing
-                    break;
-                    case 2:
-                    case 3:
-                    case 4:
-                    case 5:
-                        ;
-                        note tmpNote;
-
-                        memcpy(&tmpNote, currentNoteP, sizeof(tmpNote));
-
-                        removeNote(&flashcardPiles[flashcardPileIndex], 0); //Always remove first as of now. since that one is always choosen now.
-
-                        int newFlashcardPileIndex = flashcardPileIndex + (q - 1);
-
-                        if(newFlashcardPileIndex >= MAX_NUM_OF_FLASHCARD_PILES)
-                        {
-                            newFlashcardPileIndex = MAX_NUM_OF_FLASHCARD_PILES - 1;
-                        }
-
-                        addNote(&tmpNote, &flashcardPiles[newFlashcardPileIndex]);
-
-                    break;
-                    default:
-                        //printf("\nUnknown option...\n");
-                    break;
-                }
-            }
-        }
-    }
-}
 
 
 int initConfiguration(programConfiguration* configP, int maxY, int maxX)

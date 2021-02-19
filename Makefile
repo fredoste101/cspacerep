@@ -14,6 +14,11 @@ all : src/main.c memAlgo storage
 	$(COMPILER) $(COMPILER_FLAGS) -o build/main.o build/memAlgo.o build/notesStorage.o build/configStorage.o src/main.c src/study/study.c src/notes/note.c  src/tui/tuiUtils.c $(NCURSES_LINK)
 
 
+
+test : ./test/test.c src/study/memAlgo.c
+	$(COMPILER) $(COMPILER_FLAGS) -I ./src/study -o ./test/build/test.out ./test/test.c src/study/memAlgo.c 
+
+
 storage : notesStorage configStorage src/storage/storageConstants.h
 
 

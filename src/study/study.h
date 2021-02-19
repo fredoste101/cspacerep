@@ -15,7 +15,7 @@ int studyLoop(unsigned int numOfNotesToStudy,
               note* notesToStudy[MAX_NOTES_TO_STUDY], 
               time_t studyTime);
 
-void study(time_t studyTime, 
+void startStudy(time_t studyTime, 
            noteList* noteListP);
 
 

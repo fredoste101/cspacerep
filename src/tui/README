@@ -1,0 +1,4 @@
+TUI - Text User Interface
+
+Contains files witch handles user interface
+with ncurses.
