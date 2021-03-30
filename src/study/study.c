@@ -179,11 +179,12 @@ int studyNote(note* currentNoteP)
 
     getmaxyx(stdscr, maxY, maxX);
 
-    int contentHeight = (maxY - HEADER_HEIGHT)/2 - qualityWinHeight;
+    int contentHeight = ((maxY - HEADER_HEIGHT - qualityWinHeight - 1) / 2);
 
-    WINDOW* frontWinP   = newwin(contentHeight, maxX, HEADER_HEIGHT, 0);
-    WINDOW* backWinP    = newwin(contentHeight, maxX, HEADER_HEIGHT + contentHeight, 0);
-    WINDOW* qualityWinP = newwin(qualityWinHeight, maxX, HEADER_HEIGHT+contentHeight*2, 0);
+    WINDOW* frontWinP   = newwin(contentHeight, maxX-2, HEADER_HEIGHT+1, 1);
+    WINDOW* backWinP    = newwin(contentHeight, maxX-2, HEADER_HEIGHT + contentHeight + 1, 1);
+
+    WINDOW* qualityWinP = newwin(qualityWinHeight, maxX-2, (HEADER_HEIGHT + contentHeight * 2) + 1, 1);
 
     refresh();
 
@@ -201,7 +202,6 @@ int studyNote(note* currentNoteP)
         break;
 
         case BROWSER:
-            ;
             showInBrowser(currentNoteP->front);
 
             getch(); //Any keypress to show answer

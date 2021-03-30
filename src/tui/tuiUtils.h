@@ -4,6 +4,6 @@
 #include "tuiConstants.h"
 
 
-void initMenuWindow(WINDOW* menuWinP, int maxY, int maxX);
+void initMenuWindow(WINDOW* menuWinP);
 void initHeaderWindow(WINDOW* headerWinP, int maxX);
-void simpleBox(WINDOW* winP, int maxY, int maxX);
+void simpleBox(WINDOW* winP);

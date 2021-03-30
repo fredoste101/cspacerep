@@ -1,5 +1,6 @@
 #include "configStorage.h"
 
+
 void createProgramConfigFile(programConfiguration* configP)
 {
     FILE* configFile = fopen(CONFIG_FILE, "w+");
@@ -43,8 +44,6 @@ int readProgramConfigFile(programConfiguration* configP)
         return 1;
     }
 }
-
-
 
 
 int saveProgrammingConfigFile(programConfiguration* configP)

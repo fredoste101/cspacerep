@@ -1,8 +1,8 @@
 #include "tuiUtils.h"
 
-void initMenuWindow(WINDOW* menuWinP, int maxY, int maxX)
+void initMenuWindow(WINDOW* menuWinP)
 {
-    simpleBox(menuWinP, maxY - HEADER_HEIGHT, maxX);
+    simpleBox(menuWinP);
 
     wmove(menuWinP, 1, 3);
     wprintw(menuWinP, "0. Quit");
@@ -25,7 +25,7 @@ void initMenuWindow(WINDOW* menuWinP, int maxY, int maxX)
 void initHeaderWindow(WINDOW* headerWinP, int maxX)
 {
 
-    simpleBox(headerWinP, HEADER_HEIGHT, maxX);
+    simpleBox(headerWinP);
 
     wmove(headerWinP, HEADER_HEIGHT/2, (maxX - strlen("CSPACEREP"))/2);
 
@@ -33,52 +33,60 @@ void initHeaderWindow(WINDOW* headerWinP, int maxX)
 }
 
 
-void simpleBox(WINDOW* winP, int maxY, int maxX)
+void simpleBox(WINDOW* winP)
 {
     unsigned int i = 0;
     unsigned int j = 0;
 
+    int height;
+    int width;
+
+    getmaxyx(winP, height, width);
+
 
     wmove(winP, 0, 0);
 
-    for(j = 0; j < maxX; j++)
+
+    for(j = 0; j < width; j++)
     {
         waddch(winP, '-');
     }
 
-    wmove(winP, maxY - 1, 0);
+    wmove(winP, (height - 1), 0);
 
-    for(j = 0; j < maxX; j++)
+    for(j = 0; j < width; j++)
     {
         waddch(winP, '-');
     }
 
     wmove(winP, 0, 0);
-    for(j = 0; j < maxY; j++)
+
+    for(j = 0; j < height; j++)
     {
         waddch(winP, '|');
         wmove(winP, j, 0);
     }
 
-    wmove(winP, 0, maxX - 1);
-    for(j = 0; j < maxY; j++)
+    wmove(winP, 0, (width - 1));
+
+    for(j = 0; j < height; j++)
     {
         waddch(winP, '|');
-        wmove(winP, j, maxX - 1);
+        wmove(winP, j, (width - 1));
     }
 
-
-    /* Corners */
+    // Corners
+    
     wmove(winP, 0, 0);
     waddch(winP, '+');
 
-    wmove(winP, 0, maxX - 1);
+    wmove(winP, 0, (width - 1));
     waddch(winP, '+');
 
-    wmove(winP, maxY - 1, 0);
+    wmove(winP, (height - 1), 0);
     waddch(winP, '+');
 
-    wmove(winP, maxY - 1, maxX - 1);
+    wmove(winP, (height - 1), (width - 1));
     waddch(winP, '+');
 }
 

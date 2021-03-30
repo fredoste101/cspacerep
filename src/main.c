@@ -129,7 +129,7 @@ int main()
 
     while(1)
     {
-        initMenuWindow(menuWinP, maxY, maxX);
+        initMenuWindow(menuWinP);
 
         char choice = getch();
 
@@ -199,7 +199,7 @@ void listNotes(noteList* noteListP)
     WINDOW* noteListWinP = newwin(winHeight, winWidth, winYPos, winXPos);
     refresh();
 
-    simpleBox(noteListWinP, winHeight, winWidth);
+    simpleBox(noteListWinP);
     wrefresh(noteListWinP);
 
     wmove(noteListWinP, 1, 1);
@@ -286,7 +286,7 @@ void study(programConfiguration* configP,
 void showNoNotesToStudyWindow(WINDOW* noNotesToStudyWinP)
 {
     refresh();
-    simpleBox(noNotesToStudyWinP, 5, 5);
+    simpleBox(noNotesToStudyWinP);
     wrefresh(noNotesToStudyWinP);
     wmove(noNotesToStudyWinP, 1, 1);
     wprintw(noNotesToStudyWinP, "No notes to study");
@@ -348,8 +348,6 @@ void flashcardStudy(noteList* notesP)
 
             int q = studyNote(currentNoteP);
 
-
-            fprintf(stderr, "! %d !", q);
 
             if(q == 9)
             {
@@ -494,7 +492,7 @@ void getOffsetInDayToStudy(programConfiguration* configP, int maxY, int maxX)
                                      configInputXPosition);
     refresh();
 
-    simpleBox(configInputWinP, configInputHeight, configInputWidth);
+    simpleBox(configInputWinP);
 
     wrefresh(configInputWinP);
 
@@ -552,7 +550,7 @@ void getOffsetInDayToStudy(programConfiguration* configP, int maxY, int maxX)
     werase(configInputWinP);
     wrefresh(configInputWinP);
     
-    simpleBox(configInputWinP, configInputHeight, configInputWidth);
+    simpleBox(configInputWinP);
 
     wrefresh(configInputWinP);
     wmove(configInputWinP, 2, 3);
@@ -623,7 +621,7 @@ void printConfiguration(programConfiguration* configP, int maxY, int maxX)
     WINDOW* configWinP = newwin(winHeight, winWidth, winYPos, winXPos);
     refresh();
 
-    simpleBox(configWinP, 20, 50);
+    simpleBox(configWinP);
 
     wmove(configWinP, 1, (50 - strlen("*** CONFIG ***"))/2);
     wprintw(configWinP, "*** CONFIG ***");
