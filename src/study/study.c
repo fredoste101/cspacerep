@@ -100,18 +100,18 @@ int studyLoop(unsigned int  numOfNotesToStudy,
 }
 
 
-void showTextFront(WINDOW* frontWinP, int contentHeight, char* front, int maxX)
+void showTextFront(WINDOW* frontWinP, char* front)
 {
-    simpleBox(frontWinP, contentHeight, maxX);
+    simpleBox(frontWinP);
     wmove(frontWinP, 2,3);
     wprintw(frontWinP, front);
     wrefresh(frontWinP);
 }
 
 
-void showTextBack(WINDOW* backWinP, int contentHeight, char* back, int maxX)
+void showTextBack(WINDOW* backWinP, char* back)
 {
-    simpleBox(backWinP, contentHeight, maxX);
+    simpleBox(backWinP);
     wmove(backWinP, 2, 3);
     wprintw(backWinP, back);
     wrefresh(backWinP);
@@ -126,9 +126,9 @@ void showInBrowser(const char* uri)
 }
 
 
-void showQualityInput(WINDOW* qualityWinP, int qualityWinHeight, int maxX)
+void showQualityInput(WINDOW* qualityWinP)
 {
-    simpleBox(qualityWinP, qualityWinHeight, maxX);
+    simpleBox(qualityWinP);
     wmove(qualityWinP, 1, 1);
     wprintw(qualityWinP, "0 (Skip) - 1 (again) - 2 (ok) - 3 (Good) - 4 (Easy) - 9 (Exit)");
     wrefresh(qualityWinP);
@@ -191,13 +191,13 @@ int studyNote(note* currentNoteP)
     switch(currentNoteP->type)
     {
         case TEXT:
-            showTextFront(frontWinP, contentHeight, currentNoteP->front, maxX);
+            showTextFront(frontWinP, currentNoteP->front);
 
             getch(); //Any keypress to show answer
 
-            showTextBack(backWinP, contentHeight, currentNoteP->back, maxX);
+            showTextBack(backWinP, currentNoteP->back);
 
-            showQualityInput(qualityWinP, qualityWinHeight, maxX);
+            showQualityInput(qualityWinP);
 
         break;
 
@@ -210,11 +210,11 @@ int studyNote(note* currentNoteP)
         break;
 
         case TEXT_BROWSER:
-            showTextFront(frontWinP, contentHeight, currentNoteP->front, maxX);
+            showTextFront(frontWinP, currentNoteP->front);
 
             getch();
 
-            showQualityInput(qualityWinP, qualityWinHeight, maxX);
+            showQualityInput(qualityWinP);
 
             showInBrowser(currentNoteP->back);
         break;

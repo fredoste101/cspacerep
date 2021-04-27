@@ -4,6 +4,6 @@
 #include <stdlib.h>
 #include "storageConstants.h"
 
-void createProgramConfigFile(programConfiguration* configP);
+int createProgramConfigFile(programConfiguration* configP);
 int readProgramConfigFile(programConfiguration* configP);
 int saveProgrammingConfigFile(programConfiguration* configP);

@@ -7,6 +7,6 @@
 #include "../notes/note.h"
 
 int saveNotesToFile(noteList* notesP);
-
+int createNotesFile();
 
 int loadNotesFromFile(noteList* notes);

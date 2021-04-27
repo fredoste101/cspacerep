@@ -178,7 +178,11 @@ void quit(noteList* notesP,
           WINDOW*   headerWinP, 
           WINDOW*   menuWinP)
 {
-    saveNotesToFile(notesP);
+    if(0 > saveNotesToFile(notesP))
+    {
+	fatalError("Could not save notes to file");
+    }
+
     delwin(headerWinP);
     delwin(menuWinP);
     refresh();
@@ -404,7 +408,10 @@ void createNote(programConfiguration* configP,
         saveProgrammingConfigFile(configP);
         addNote(&newNote, notesP);
 
-        saveNotesToFile(notesP);
+        if(0 > saveNotesToFile(notesP))
+	{
+		fatalError("Could not save notes to file");
+	}
     }
 }
 
@@ -803,7 +810,7 @@ int initConfiguration(programConfiguration* configP, int maxY, int maxX)
 
 void initNotes(noteList* notesP)
 {
-    if(!loadNotesFromFile(notesP))
+    if(0 > loadNotesFromFile(notesP))
     {
         if(!createNotesFile())
         {

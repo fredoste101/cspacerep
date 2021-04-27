@@ -2,10 +2,11 @@
 #define STUDY_INCLUSION_PROTECTION
 
 #include <ncurses.h>
+#include "memAlgo.h"
 #include "../notes/note.h"
 #include "../timeUtils.h"
 #include "../tui/tuiConstants.h"
-
+#include "../tui/tuiUtils.h"
 
 #define MAX_NOTES_TO_STUDY 50
 

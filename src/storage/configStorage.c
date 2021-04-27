@@ -1,13 +1,13 @@
 #include "configStorage.h"
 
 
-void createProgramConfigFile(programConfiguration* configP)
+int createProgramConfigFile(programConfiguration* configP)
 {
     FILE* configFile = fopen(CONFIG_FILE, "w+");
 
     if(configFile == NULL)
     {
-        fatalError("Could not open/create erispacerep.conf. FATAL");
+	return -1;
     }
 
     size_t bytesWritten = fwrite(configP, 
@@ -16,6 +16,7 @@ void createProgramConfigFile(programConfiguration* configP)
                                  configFile);
 
     fclose(configFile);
+    return 0;
 
 }
 
@@ -37,7 +38,7 @@ int readProgramConfigFile(programConfiguration* configP)
         if(memberRead != 1)
         {
             fclose(configFile);
-            fatalError("bytesRead is not equal to config size. FATAL.");
+	    return -1;
         }
 
         fclose(configFile);
@@ -52,7 +53,7 @@ int saveProgrammingConfigFile(programConfiguration* configP)
 
     if(configFile == NULL)
     {
-        fatalError("error opening file with w. FATAL");
+	return -1;
     }
 
     fwrite(configP, 
@@ -61,4 +62,5 @@ int saveProgrammingConfigFile(programConfiguration* configP)
            configFile);
 
     fclose(configFile);
+    return 0;
 }

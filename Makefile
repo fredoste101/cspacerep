@@ -11,7 +11,7 @@ debug : all
 
 
 all : src/main.c memAlgo storage
-	$(COMPILER) $(COMPILER_FLAGS) -o build/main.o build/memAlgo.o build/notesStorage.o build/configStorage.o src/main.c src/study/study.c src/notes/note.c  src/tui/tuiUtils.c $(NCURSES_LINK)
+	$(COMPILER) $(COMPILER_FLAGS) -o build/main.o build/memAlgo.o build/notesStorage.o build/configStorage.o src/main.c src/study/study.c src/notes/note.c src/tui/tuiUtils.c $(NCURSES_LINK)
 
 
 

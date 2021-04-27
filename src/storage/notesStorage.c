@@ -1,6 +1,7 @@
 
 #include "notesStorage.h"
 
+
 int loadNotesFromFile(noteList* notesP)
 {
     FILE* notesFile = fopen(NOTES_FILE, "r");
@@ -28,7 +29,7 @@ int loadNotesFromFile(noteList* notesP)
 
     fclose(notesFile);
 
-    return 1;
+    return 0;
 }
 
 
@@ -53,10 +54,13 @@ int saveNotesToFile(noteList* notesP)
 
     if(notesFile == NULL)
     {
-        fatalError("Could not open notesFile for saving. FATAL");
+	    return -1;
     }
+
 
     fwrite(notesP->list, sizeof(note), notesP->size, notesFile);
 
     fclose(notesFile);
+
+    return 0;
 }
