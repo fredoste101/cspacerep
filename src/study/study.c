@@ -191,32 +191,32 @@ int studyNote(note* currentNoteP)
     switch(currentNoteP->type)
     {
         case TEXT:
-            showTextFront(frontWinP, currentNoteP->front);
+            showTextFront(frontWinP, currentNoteP->front.data);
 
             getch(); //Any keypress to show answer
 
-            showTextBack(backWinP, currentNoteP->back);
+            showTextBack(backWinP, currentNoteP->back.data);
 
             showQualityInput(qualityWinP);
 
         break;
 
         case BROWSER:
-            showInBrowser(currentNoteP->front);
+            showInBrowser(currentNoteP->front.data);
 
             getch(); //Any keypress to show answer
 
-            showInBrowser(currentNoteP->back);
+            showInBrowser(currentNoteP->back.data);
         break;
 
         case TEXT_BROWSER:
-            showTextFront(frontWinP, currentNoteP->front);
+            showTextFront(frontWinP, currentNoteP->front.data);
 
             getch();
 
             showQualityInput(qualityWinP);
 
-            showInBrowser(currentNoteP->back);
+            showInBrowser(currentNoteP->back.data);
         break;
 
         default:

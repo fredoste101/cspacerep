@@ -1,5 +1,7 @@
 #include "note.h"
 
+
+
 void addNote(note* noteP, noteList* noteListP)
 {
     if(noteListP->size == noteListP->maxSize)
@@ -10,13 +12,17 @@ void addNote(note* noteP, noteList* noteListP)
 
         noteListP->list = (note*)malloc(sizeof(note) * noteListP->maxSize);
 
-        memcpy(noteListP->list, temp, noteListP->size * sizeof(note));
+        memcpy(noteListP->list, 
+               temp, 
+               (noteListP->size * sizeof(note)));
 
         free(temp);
 
     }
 
-    memcpy(&noteListP->list[noteListP->size], noteP, sizeof(note));
+    memcpy(&noteListP->list[noteListP->size], 
+           noteP, 
+           sizeof(*noteP));
 
     noteListP->size++;
 }

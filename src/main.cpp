@@ -3,9 +3,11 @@
 #include <time.h>
 #include <ncurses.h>
 
+
 #include "notes/note.h"
 #include "timeUtils.h"
 #include "study/study.h"
+#include "deck/deck.h"
 #include "config/config.h"
 
 #include "tui/tuiUtils.h"
@@ -71,9 +73,7 @@ void changeNote(noteList* noteListP);
 int initConfiguration(programConfiguration* configP, int maxY, int maxX);
 
 
-void quit(noteList* notesP, 
-          WINDOW*   headerWinP, 
-          WINDOW*   menuWinP);
+void quit(noteList* notesP);
 
 
 void study(programConfiguration* configP,
@@ -90,29 +90,14 @@ void deleteNote(programConfiguration* configP,
 
 int main()
 {
-    /* Initialzie window */
-    initscr();
-
-    /* Take in all characters written by user */
-    //raw();
-
-    /* Do not echo user input */
-    noecho();
-
+    TUI tui = TUI();
+    
     int maxY;
     int maxX;
 
     getmaxyx(stdscr, maxY, maxX);
 
-    WINDOW* headerWinP  = newwin(HEADER_HEIGHT, maxX, 0, 0);
-    WINDOW* menuWinP    = newwin(maxY - HEADER_HEIGHT, maxX, HEADER_HEIGHT, 0);
-
-    refresh();
-
-    initHeaderWindow(headerWinP, maxX);
-    
-    refresh();
-    wrefresh(headerWinP);
+    DeckContainer deckContainer();
 
     programConfiguration config;
 
@@ -129,39 +114,39 @@ int main()
 
     while(1)
     {
-        initMenuWindow(menuWinP);
+        tui.showStartScreen();
 
         char choice = getch();
 
         switch(choice - 48)
         {
             case QUIT:
-                quit(&notes, headerWinP, menuWinP);
+                quit(&notes);
                 return 0;
             break;
 
             case LIST_NOTES:
-                listNotes(&notes);
+                //listNotes(&notes);
             break;
 
             case STUDY:
-                study(&config, &notes);
+                //study(&config, &notes);
             break;
 
             case FLASHCARD_STUDY:
-                flashcardStudy(&notes);
+                //flashcardStudy(&notes);
             break;
 
             case CREATE_NOTE: break; //create note
-                createNote(&config, &notes);
+                //createNote(&config, &notes);
             break;
 
             case CHANGE_NOTE: break;
-                changeNote(&notes);
+                //changeNote(&notes);
             break;
 
             case DELETE_NOTE: break;//Remove note
-                deleteNote(&config, &notes);
+                //deleteNote(&config, &notes);
             break;
 
             default:
@@ -174,19 +159,17 @@ int main()
 }
 
 
-void quit(noteList* notesP, 
-          WINDOW*   headerWinP, 
-          WINDOW*   menuWinP)
+void quit(noteList* notesP)
 {
     if(0 > saveNotesToFile(notesP))
     {
-	fatalError("Could not save notes to file");
+	    fatalError("Could not save notes to file");
     }
 
-    delwin(headerWinP);
+    /*delwin(headerWinP);
     delwin(menuWinP);
     refresh();
-    endwin();
+    endwin();*/
 }
 
 
@@ -230,34 +213,34 @@ void listNotes(noteList* noteListP)
 
         unsigned int maxStrlen = 8;
 
-        if(strlen(currentNoteP->front) < 8)
+        if(currentNoteP->front.size < 8)
         {
-            maxStrlen = strlen(currentNoteP->front) - 1;
+            maxStrlen = currentNoteP->front.size - 1;
         }
 
-        strncpy(tmpFront, currentNoteP->front, maxStrlen);
+        strncpy(tmpFront, currentNoteP->front.data, maxStrlen);
 
         maxStrlen = 7;
 
-        if(strlen(currentNoteP->back) < 7)
+        if(currentNoteP->back.size < 7)
         {
-            maxStrlen = strlen(currentNoteP->back);
+            maxStrlen = currentNoteP->back.size;
         }
 
-        strncpy(tmpBack, currentNoteP->back, maxStrlen);
+        strncpy(tmpBack, currentNoteP->back.data, maxStrlen);
 
         
         mvwprintw(noteListWinP, getcury(noteListWinP) + 1, 1, " %4u | %9s | %8s | %0.1f | %8d | %4d-%02d-%02d %02d:%02d |", 
-                currentNoteP->id, 
-                tmpFront, 
-                tmpBack,
-                currentNoteP->ef,
-                currentNoteP->interval,
-                calendarTime.tm_year + 1900,
-                calendarTime.tm_mon + 1,
-                calendarTime.tm_mday + 1,
-                calendarTime.tm_hour,
-                calendarTime.tm_min);
+                  currentNoteP->id, 
+                  tmpFront, 
+                  tmpBack,
+                  currentNoteP->ef,
+                  currentNoteP->interval,
+                  calendarTime.tm_year + 1900,
+                  calendarTime.tm_mon + 1,
+                  calendarTime.tm_mday + 1,
+                  calendarTime.tm_hour,
+                  calendarTime.tm_min);
 
         mvwprintw(noteListWinP, getcury(noteListWinP) + 1, 1, "------------------------------------------------------------------");
     }
@@ -277,7 +260,7 @@ void listNotes(noteList* noteListP)
 
 
 void study(programConfiguration* configP,
-                noteList* notesP)
+           noteList* notesP)
 {
     const time_t currentTime = time(NULL);
     time_t studyTime = getStudyTime(currentTime, 
@@ -368,7 +351,7 @@ void flashcardStudy(noteList* notesP)
                     case 3:
                     case 4:
                     case 5:
-                        ;
+                    {
                         note tmpNote;
 
                         memcpy(&tmpNote, currentNoteP, sizeof(tmpNote));
@@ -383,7 +366,7 @@ void flashcardStudy(noteList* notesP)
                         }
 
                         addNote(&tmpNote, &flashcardPiles[newFlashcardPileIndex]);
-
+                    }
                     break;
                     default:
                         //printf("\nUnknown option...\n");
@@ -435,14 +418,14 @@ void changeNote(noteList* noteListP)
         //flush stdin
         while ((c = getchar()) != '\n' && c != EOF);
 
-        printf("front: (%s)", noteP->front);
-        fgets(noteP->front, sizeof(noteP->front), stdin);
+        printf("front: (%s)", noteP->front.data);
+        fgets(noteP->front.data, noteP->front.size, stdin);
 
         printf("back: (%s)", noteP->back);
-        fgets(noteP->back, sizeof(noteP->back), stdin);
+        fgets(noteP->back.data, noteP->back.size, stdin);
 
-        removeNewlineAtEnd(noteP->front);
-        removeNewlineAtEnd(noteP->back);
+        removeNewlineAtEnd(noteP->front.data);
+        removeNewlineAtEnd(noteP->back.data);
 
     }
     else
@@ -470,14 +453,17 @@ void deleteNote(programConfiguration* configP,
 }
 
 
-
-
 void setDefaultConfigValues(programConfiguration* configP)
 {
-    configP->nextNoteId         = 0;
-    configP->timeLastStarted    = 0;   ///< @todo change this to time values later
-    configP->offsetInDayToStudy = 0;  
-    configP->numOfNotes         = 0;
+    configP->metaData.sizeOfConfigInBytes  = sizeof(*configP);
+    configP->metaData.version       = VERSION;
+    configP->nextNoteId             = 0;
+    configP->timeLastStarted        = 0;   ///< @todo change this to time values later
+    configP->offsetInDayToStudy     = 0;  
+    configP->numOfNotes             = 0;
+
+    configP->noteSizeInBytes        = sizeof(note);
+    configP->deckSizeInBytes        = sizeof(deck);
 }
 
 
@@ -674,16 +660,17 @@ int createNewNote(note* noteP, unsigned int noteId)
             //flush stdin
             while ((c = getchar()) != '\n' && c != EOF);
 
-            fgets(noteP->front, sizeof(noteP->front), stdin);
+            fgets(noteP->front.data, noteP->front.size, stdin);
 
             printf("back:");
-            fgets(noteP->back, sizeof(noteP->back), stdin);
+            fgets(noteP->back.data, noteP->back.size, stdin);
 
-            removeNewlineAtEnd(noteP->front);
-            removeNewlineAtEnd(noteP->back);
+            removeNewlineAtEnd(noteP->front.data);
+            removeNewlineAtEnd(noteP->back.data);
 
             return 1;
         break;
+
         case BROWSER:
             noteP->type = BROWSER;
 
@@ -692,21 +679,17 @@ int createNewNote(note* noteP, unsigned int noteId)
             //flush stdin
             while ((c = getchar()) != '\n' && c != EOF);
 
-            fgets(noteP->front, sizeof(noteP->front), stdin);
-
-            if(noteP->front)
-            {
-
-            }
+            fgets(noteP->front.data, noteP->front.size, stdin);
 
             printf("back file:");
-            fgets(noteP->back, sizeof(noteP->back), stdin);
+            fgets(noteP->back.data, noteP->back.size, stdin);
 
-            removeNewlineAtEnd(noteP->front);
-            removeNewlineAtEnd(noteP->back);
+            removeNewlineAtEnd(noteP->front.data);
+            removeNewlineAtEnd(noteP->back.data);
 
             return 1;
         break;
+
         case TEXT_BROWSER:
             noteP->type = TEXT_BROWSER;
 
@@ -715,13 +698,13 @@ int createNewNote(note* noteP, unsigned int noteId)
             //flush stdin
             while ((c = getchar()) != '\n' && c != EOF);
 
-            fgets(noteP->front, sizeof(noteP->front), stdin);
+            fgets(noteP->front.data, noteP->front.size, stdin);
 
             printf("back file:");
-            fgets(noteP->back, sizeof(noteP->back), stdin);
+            fgets(noteP->back.data, noteP->back.size, stdin);
 
-            removeNewlineAtEnd(noteP->front);
-            removeNewlineAtEnd(noteP->back);
+            removeNewlineAtEnd(noteP->front.data);
+            removeNewlineAtEnd(noteP->back.data);
 
             return 1;
         break;
@@ -731,7 +714,6 @@ int createNewNote(note* noteP, unsigned int noteId)
         break;
     }
 }
-
 
 
 time_t getStudyTime(time_t currentTime, 
@@ -759,9 +741,6 @@ time_t getStudyTime(time_t currentTime,
 }
 
 
-
-
-
 /**
  * @brief if string ends with \n replaces that with \0
  * 
@@ -774,8 +753,6 @@ void removeNewlineAtEnd(char* string)
         string[strlen(string) - 1] = '\0';
     }
 }
-
-
 
 
 int isNoteIdInList(noteList* noteListP, unsigned int id)

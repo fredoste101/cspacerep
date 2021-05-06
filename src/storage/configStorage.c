@@ -1,13 +1,16 @@
 #include "configStorage.h"
 
 
+
+
+
 int createProgramConfigFile(programConfiguration* configP)
 {
     FILE* configFile = fopen(CONFIG_FILE, "w+");
 
     if(configFile == NULL)
     {
-	return -1;
+	    return -1;
     }
 
     size_t bytesWritten = fwrite(configP, 
