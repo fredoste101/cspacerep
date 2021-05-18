@@ -14,7 +14,7 @@ typedef struct deck
 {
     unsigned int        size;                   ///< if struct will change between versions
     unsigned int        id;                     ///< unique ID of this deck. Used to link notes to given deck
-    std::string         name;                   ///< name of the deck
+    std::string*        name;                   ///< name of the deck
     deck*               parentP;                ///< parent deck
     std::vector<deck*>  childList;              ///< list of child decks
     unsigned int        numOfNotes;             ///< number of notes directly in this deck
@@ -29,6 +29,10 @@ class DeckContainer
         std::vector<deck*>  deckList;
         std::fstream*       fileP;
         unsigned int        fileSize;
+        unsigned int        nextDeckId;
+
+        void readDeckList();
+
 
     public:
         DeckContainer();

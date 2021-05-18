@@ -334,7 +334,7 @@ void TUI::listDecks(DeckContainer* deckContainerP)
 
         wrefresh(winP);
 
-        printCenter(winP, currentDeckP->name.c_str());
+        printCenter(winP, currentDeckP->name->c_str());
 
         WindowManager* winManP = new WindowManager(winP);
 
@@ -347,11 +347,22 @@ void TUI::listDecks(DeckContainer* deckContainerP)
 }
 
 
+void TUI::createDeckForm(DeckContainer* deckCoontainerP)
+{
+     WindowManager* contentP = base.getChildAtIndex(1);
+
+     contentP->clearChildren();
+
+     //TODO: form to give:
+     //name
+}
+
+
 void TUI::showHeader()
 {
-    WindowManager* contentP = base.getChildAtIndex(0);  //Index 0 is the header
+    WindowManager* headerP = base.getChildAtIndex(0);  //Index 0 is the header
 
-    WINDOW* headerWinP = contentP->getBase();
+    WINDOW* headerWinP = headerP->getBase();
 
     simpleBox(headerWinP);
     printCenter(headerWinP, "*** CSPACEREP ***");
@@ -375,17 +386,18 @@ void TUI::showMenu()
 
     getbegyx(contentWindowP, menuStartY, menuStartX);
 
-    const char* menuStringList[2] = 
+    const char* menuStringList[3] = 
     {
         "0 QUIT", 
-        "1 LIST DECKS"
+        "1 LIST DECKS",
+        "2 CREATE DECK"
     };
 
     WINDOW* menuWindow;
 
     unsigned int i;
 
-    for(i = 0; i < 2; i++)
+    for(i = 0; i < 3; i++)
     {
         int startY = (menuStartY+2);
         int startX = (menuStartX+3) + i * 21;

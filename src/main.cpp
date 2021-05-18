@@ -29,6 +29,7 @@ typedef enum
 {
   QUIT = 0,
   LIST_DECKS,
+  CREATE_DECK,
   LIST_NOTES,
   STUDY,
   FLASHCARD_STUDY,
@@ -102,7 +103,6 @@ int main()
         exit(1);
     }
     
-
     programConfiguration config;
 
     initConfiguration(&config, &tui);
@@ -112,7 +112,6 @@ int main()
     memset(&notes, 0, sizeof(notes));
 
     initNotes(&notes);
-
 
     //MAIN LOOP
 
@@ -136,6 +135,13 @@ int main()
             case LIST_DECKS:
             {
                 tui.listDecks(&deckContainer);
+            }
+            break;
+
+            case CREATE_DECK:
+            {
+                tui.createDeckForm(&deckContainer);
+                sleep(1);
             }
             break;
 
@@ -431,7 +437,6 @@ void changeNote(noteList* noteListP)
         printf("front: (%s)", noteP->front.data);
         fgets(noteP->front.data, noteP->front.size, stdin);
 
-        printf("back: (%s)", noteP->back);
         fgets(noteP->back.data, noteP->back.size, stdin);
 
         removeNewlineAtEnd(noteP->front.data);
@@ -465,15 +470,15 @@ void deleteNote(programConfiguration* configP,
 
 void setDefaultConfigValues(programConfiguration* configP)
 {
-    configP->metaData.sizeOfConfigInBytes  = sizeof(*configP);
-    configP->metaData.version       = VERSION;
-    configP->nextNoteId             = 0;
-    configP->timeLastStarted        = 0;   ///< @todo change this to time values later
-    configP->offsetInDayToStudy     = 0;  
-    configP->numOfNotes             = 0;
+    configP->metaData.sizeOfConfigInBytes   = sizeof(*configP);
+    configP->metaData.version               = VERSION;
+    configP->nextNoteId                     = 0;
+    configP->timeLastStarted                = 0;   ///< @todo change this to time values later
+    configP->offsetInDayToStudy             = 0;  
+    configP->numOfNotes                     = 0;
 
-    configP->noteSizeInBytes        = sizeof(note);
-    configP->deckSizeInBytes        = sizeof(deck);
+    configP->noteSizeInBytes                = sizeof(note);
+    configP->deckSizeInBytes                = sizeof(deck);
 }
 
 

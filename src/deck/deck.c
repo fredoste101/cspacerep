@@ -6,8 +6,10 @@
 
 DeckContainer::DeckContainer()
 {
+    nextDeckId = 0;
     fileP = new std::fstream();
 }
+
 
 DeckContainer::~DeckContainer()
 {
@@ -67,8 +69,6 @@ void DeckContainer::save()
 
     char buffer[100];
 
-
-
     //Save numOfDecks
 
     memset(buffer, 0, sizeof(char) * 100);
@@ -96,9 +96,9 @@ void DeckContainer::save()
     {
         memset(buffer, 0, sizeof(char) * 100);
 
-        size_t stringLength = sizeof(char) * (deckList[i]->name.length() + 1); //Including '\0'
+        size_t stringLength = sizeof(char) * (deckList[i]->name->length() + 1); //Including '\0'
 
-        memcpy(buffer, deckList[i]->name.c_str(), stringLength);
+        memcpy(buffer, deckList[i]->name->c_str(), stringLength);
 
         fileP->write(&buffer[0], stringLength);
     }
@@ -112,54 +112,111 @@ bool DeckContainer::load()
     {
         deck* defaultDeckP = createDefaultDeck();
 
-        deckList.push_back(defaultDeckP);
+        addDeck(defaultDeckP);
     }
     else
     {
-        unsigned int numOfDecks = 0;
-
-        char buf[100];
-
-        //Read numOfDecks
-
-        memset(buf, 0, sizeof(char)*100);
-
-        fileP->read(buf, 4);
-
-        memcpy(&numOfDecks, buf, sizeof(numOfDecks));
-
-
-        //Read deckList
-
-        for(unsigned int i = 0; i < numOfDecks; i++)
-        {
-            memset(buf, 0, sizeof(char)*100);
-
-            deck* tmpDeck = new deck;
-
-            fileP->read(buf, sizeof(deck));
-
-            memcpy(tmpDeck, buf, sizeof(deck));
-
-            deckList.push_back(tmpDeck);
-        }
+        
+        readDeckList();
 
         //Then there's the tricky part... strings...
+        char buf[100];
 
+
+        unsigned int stringIndex = 0;
+
+        bool readingStrings = true;
+
+        std::string currentString = "";
+
+        std::streamsize numOfBytesRead;
+
+        do
+        {
+
+            memset(buf, 0, sizeof(char) * 100);
+
+            fileP->read(buf, sizeof(char) * 100);
+
+            numOfBytesRead = fileP->gcount();
+
+            if(readingStrings)
+            {
+                for(unsigned int i = 0; i < numOfBytesRead; i++)
+                {
+                    if(buf[i] == '\0')
+                    {
+
+                        deckList[stringIndex]->name = new std::string();
+
+                        deckList[stringIndex]->name->assign(currentString);
+
+                        stringIndex++;
+
+                        if(stringIndex >= deckList.size())
+                        {
+                            //All decks have gotten their strings
+                            readingStrings = false;
+                            break;
+                        }
+
+                        currentString = "";
+                    }
+                    else
+                    {
+                        currentString += buf[i];
+                    }
+                }
+            }
+            else
+            {
+                //read relations
+            }
+
+        } 
+        while (numOfBytesRead == (sizeof(char) * 100));
         
-
-
-
-        fprintf(stderr, "numOfDecks=%u", numOfDecks);
-
-        exit(1);
     }   
 
     return true; 
 }
 
+
+void DeckContainer::readDeckList()
+{
+    unsigned int numOfDecks = 0;
+
+    char buf[100];
+
+    //Read numOfDecks
+
+    memset(buf, 0, sizeof(char)*100);
+
+    fileP->read(buf, 4);
+
+    memcpy(&numOfDecks, buf, sizeof(numOfDecks));
+
+
+    //Read deckList
+
+    for(unsigned int i = 0; i < numOfDecks; i++)
+    {
+        memset(buf, 0, sizeof(char)*100);
+
+        deck* tmpDeck = new deck;
+
+        fileP->read(buf, sizeof(deck));
+
+        memcpy(tmpDeck, buf, sizeof(deck));
+
+        deckList.push_back(tmpDeck);
+    }
+}
+
+
 void DeckContainer::addDeck(deck* deckP)
 {
+    nextDeckId++;
     deckList.push_back(deckP);
 }
 
@@ -189,8 +246,8 @@ deck* DeckContainer::createDefaultDeck()
 {
     deck* defaultDeckP = new deck;
 
-    defaultDeckP->name                  = "Default";
-    defaultDeckP->id                    = 0;
+    defaultDeckP->name                  = new std::string("Default");
+    defaultDeckP->id                    = nextDeckId;
     defaultDeckP->size                  = sizeof(*defaultDeckP);
     defaultDeckP->parentP               = NULL;
     defaultDeckP->numOfNotes            = 0;

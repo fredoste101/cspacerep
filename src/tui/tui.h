@@ -48,6 +48,8 @@ class TUI
 
         void showHeader();
 
+        void createDeckForm(DeckContainer* deckCoontainerP);
+
 };
 
 
