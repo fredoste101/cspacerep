@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <string>
 #include <ncurses.h>
+#include <unistd.h>
 
 
 #include "notes/note.h"
@@ -10,7 +12,7 @@
 #include "deck/deck.h"
 #include "config/config.h"
 
-#include "tui/tuiUtils.h"
+#include "tui/tui.h"
 
 #include "storage/configStorage.h"
 #include "storage/notesStorage.h"
@@ -26,6 +28,7 @@
 typedef enum
 {
   QUIT = 0,
+  LIST_DECKS,
   LIST_NOTES,
   STUDY,
   FLASHCARD_STUDY,
@@ -44,10 +47,6 @@ void fatalError(const char* msg)
 
 
 void setDefaultConfigValues(programConfiguration* configP);
-
-void getOffsetInDayToStudy(programConfiguration* configP, int maxY, int maxX);
-
-void printConfiguration(programConfiguration* configP, int maxY, int maxX);
 
 int createNewNote(note* noteP, unsigned int noteId);
 
@@ -70,7 +69,7 @@ void removeNewlineAtEnd(char* string);
 
 void changeNote(noteList* noteListP);
 
-int initConfiguration(programConfiguration* configP, int maxY, int maxX);
+int initConfiguration(programConfiguration* configP, TUI* tuiP);
 
 
 void quit(noteList* notesP);
@@ -91,17 +90,22 @@ void deleteNote(programConfiguration* configP,
 int main()
 {
     TUI tui = TUI();
+
+    DeckContainer deckContainer = DeckContainer();
+
+    std::string deckFile = DECK_FILE;
+
+    deckContainer.setFile(deckFile);
+
+    if(!deckContainer.load())
+    {
+        exit(1);
+    }
     
-    int maxY;
-    int maxX;
-
-    getmaxyx(stdscr, maxY, maxX);
-
-    DeckContainer deckContainer();
 
     programConfiguration config;
 
-    initConfiguration(&config, maxY, maxX);
+    initConfiguration(&config, &tui);
 
     noteList notes;
 
@@ -114,6 +118,7 @@ int main()
 
     while(1)
     {
+        
         tui.showStartScreen();
 
         char choice = getch();
@@ -121,9 +126,19 @@ int main()
         switch(choice - 48)
         {
             case QUIT:
+            {
+                deckContainer.save();
                 quit(&notes);
                 return 0;
+            }
             break;
+
+            case LIST_DECKS:
+            {
+                tui.listDecks(&deckContainer);
+            }
+            break;
+
 
             case LIST_NOTES:
                 //listNotes(&notes);
@@ -166,10 +181,7 @@ void quit(noteList* notesP)
 	    fatalError("Could not save notes to file");
     }
 
-    /*delwin(headerWinP);
-    delwin(menuWinP);
-    refresh();
-    endwin();*/
+    /* Automatically I think TUI destructor will be called, and all windows will be erased */
 }
 
 
@@ -186,7 +198,6 @@ void listNotes(noteList* noteListP)
     WINDOW* noteListWinP = newwin(winHeight, winWidth, winYPos, winXPos);
     refresh();
 
-    simpleBox(noteListWinP);
     wrefresh(noteListWinP);
 
     wmove(noteListWinP, 1, 1);
@@ -273,7 +284,6 @@ void study(programConfiguration* configP,
 void showNoNotesToStudyWindow(WINDOW* noNotesToStudyWinP)
 {
     refresh();
-    simpleBox(noNotesToStudyWinP);
     wrefresh(noNotesToStudyWinP);
     wmove(noNotesToStudyWinP, 1, 1);
     wprintw(noNotesToStudyWinP, "No notes to study");
@@ -467,176 +477,6 @@ void setDefaultConfigValues(programConfiguration* configP)
 }
 
 
-void getOffsetInDayToStudy(programConfiguration* configP, int maxY, int maxX)
-{
-    int inputTime;
-    int hour;
-    int minute;
-
-    unsigned int configInputHeight = 5;
-    unsigned int configInputWidth = 50;
-
-    unsigned int configInputYPosition = (maxY-configInputHeight)/2;
-    unsigned int configInputXPosition = (maxX-configInputWidth)/2;
-
-    WINDOW* configInputWinP = newwin(configInputHeight, 
-                                     configInputWidth, 
-                                     configInputYPosition, 
-                                     configInputXPosition);
-    refresh();
-
-    simpleBox(configInputWinP);
-
-    wrefresh(configInputWinP);
-
-    wmove(configInputWinP, 2, 3);
-
-    wprintw(configInputWinP, "Hour in day to study [0, 23]? ");
-
-    wrefresh(configInputWinP);
-
-    int hasGottenInput = 0;
-
-    while(!hasGottenInput)
-    {
-        char firstInput;
-
-        while(1)
-        {
-            firstInput = getch();
-
-            if(firstInput >= '0' && firstInput <= '9')
-            {
-                waddch(configInputWinP, firstInput);
-                wrefresh(configInputWinP);
-                break;
-            }
-        }
-
-        while(1)
-        {
-            char secondInput = getch();
-
-            if(secondInput == 10)
-            {
-                inputTime =  firstInput - 48;
-                hasGottenInput = 1;
-                break;
-            }
-            else
-            {
-                if(firstInput == '1' && 
-                    secondInput >= '0' && secondInput <= '9' ||
-                    firstInput == '2' && 
-                    secondInput >= '0' && secondInput <= '3')
-                {
-                    inputTime = (firstInput - 48) * 10 + secondInput - 48;
-                    hasGottenInput = 1;
-                    break;
-                }
-            }
-        }
-    }
-
-    hour = inputTime;
-
-    werase(configInputWinP);
-    wrefresh(configInputWinP);
-    
-    simpleBox(configInputWinP);
-
-    wrefresh(configInputWinP);
-    wmove(configInputWinP, 2, 3);
-    wprintw(configInputWinP, "Minute of hour to study [0, 59]? ");
-    wrefresh(configInputWinP);
-
-
-    hasGottenInput = 0;
-
-    while(!hasGottenInput)
-    {
-        char firstInput;
-
-        while(1)
-        {
-            firstInput = getch();
-
-            if(firstInput >= '0' && firstInput <= '9')
-            {
-                waddch(configInputWinP, firstInput);
-                wrefresh(configInputWinP);
-                break;
-            }
-        }
-
-        while(1)
-        {
-            char secondInput = getch();
-
-            if(secondInput == 10)
-            {
-                inputTime = firstInput - 48;
-                hasGottenInput = 1;
-                break;
-            }
-            else
-            {
-                if(firstInput > '0' && firstInput <= '5' && 
-                   secondInput >= '0' && secondInput <= '9')
-                {
-                    inputTime = (firstInput - 48) * 10  + secondInput - 48;
-                    hasGottenInput = 1;
-                    break;
-                }
-            }
-        }
-    }
-
-    minute = inputTime;
-
-    werase(configInputWinP);
-    wrefresh(configInputWinP);
-    delwin(configInputWinP);
-    refresh();
-
-    configP->offsetInDayToStudy = hour * SECONDS_IN_HOUR + minute * SECONDS_IN_MINUTE;
-    
-}
-
-
-void printConfiguration(programConfiguration* configP, int maxY, int maxX)
-{
-    int winHeight = 20;
-    int winWidth = 50;
-    int winYPos = (maxY-winHeight) / 2;
-    int winXPos = (maxX-winWidth)/2;
-
-    WINDOW* configWinP = newwin(winHeight, winWidth, winYPos, winXPos);
-    refresh();
-
-    simpleBox(configWinP);
-
-    wmove(configWinP, 1, (50 - strlen("*** CONFIG ***"))/2);
-    wprintw(configWinP, "*** CONFIG ***");
-    wmove(configWinP, 2, 3);
-    wprintw(configWinP, "nextNoteId: %u", configP->nextNoteId);
-    wmove(configWinP, 3, 3);
-    wprintw(configWinP, "lastLoginTime: %u", configP->timeLastStarted);
-    wmove(configWinP, 4, 3);
-    wprintw(configWinP, "offsetInDayToStudy: %u", configP->offsetInDayToStudy);
-    wmove(configWinP, 6, 3);
-    wprintw(configWinP, "PRESS ANY KEY TO CONFIRM");
-
-    wrefresh(configWinP);
-
-    getch();
-    werase(configWinP);
-    wrefresh(configWinP);
-    delwin(configWinP);
-    refresh();
-}
-
-
 int createNewNote(note* noteP, unsigned int noteId)
 {
     int noteType;
@@ -772,16 +612,16 @@ int isNoteIdInList(noteList* noteListP, unsigned int id)
 
 
 
-int initConfiguration(programConfiguration* configP, int maxY, int maxX)
+int initConfiguration(programConfiguration* configP, TUI* tuiP)
 {
     if(!readProgramConfigFile(configP))
     {
         setDefaultConfigValues(configP);
-        getOffsetInDayToStudy(configP, maxY, maxX);
+        tuiP->getOffsetInDayToStudy(configP);
         createProgramConfigFile(configP);
     }
 
-    printConfiguration(configP, maxY, maxX);
+    tuiP->showConfigurationScreen(configP);
 }
 
 

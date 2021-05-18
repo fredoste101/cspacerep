@@ -13,5 +13,8 @@ else
 fi
 
 touch ./src/storage/directory.h
+
 echo "//GENERATED FILE" > ./src/storage/directory.h
 echo "#define STORAGE_DIR \"${CSPACE_REP_STORAGE_DIR}\"" >> ./src/storage/directory.h
+
+echo "*** INSTALLATION COMPLETE ***"

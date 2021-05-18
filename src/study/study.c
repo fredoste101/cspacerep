@@ -102,7 +102,6 @@ int studyLoop(unsigned int  numOfNotesToStudy,
 
 void showTextFront(WINDOW* frontWinP, char* front)
 {
-    simpleBox(frontWinP);
     wmove(frontWinP, 2,3);
     wprintw(frontWinP, front);
     wrefresh(frontWinP);
@@ -111,7 +110,6 @@ void showTextFront(WINDOW* frontWinP, char* front)
 
 void showTextBack(WINDOW* backWinP, char* back)
 {
-    simpleBox(backWinP);
     wmove(backWinP, 2, 3);
     wprintw(backWinP, back);
     wrefresh(backWinP);
@@ -128,7 +126,6 @@ void showInBrowser(const char* uri)
 
 void showQualityInput(WINDOW* qualityWinP)
 {
-    simpleBox(qualityWinP);
     wmove(qualityWinP, 1, 1);
     wprintw(qualityWinP, "0 (Skip) - 1 (again) - 2 (ok) - 3 (Good) - 4 (Easy) - 9 (Exit)");
     wrefresh(qualityWinP);

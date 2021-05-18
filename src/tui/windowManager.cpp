@@ -20,6 +20,8 @@ WindowManager::~WindowManager()
 
     if(baseWinP != stdscr)
     {
+        wclear(baseWinP);
+        wrefresh(baseWinP);
         delwin(baseWinP);
     }
     else
@@ -28,6 +30,7 @@ WindowManager::~WindowManager()
     }
     
 }
+
 
 void WindowManager::updateWindows()
 {
@@ -46,6 +49,8 @@ void WindowManager::updateWindows()
 
 void WindowManager::insertChild(unsigned int index, WindowManager* childP)
 {
+    childP->parent = this;
+
     std::vector<WindowManager*>::iterator it;
     it = childList.begin() + index;
 
@@ -68,6 +73,7 @@ void WindowManager::clearChildren()
 
 void WindowManager::appendChild(WindowManager* childP)
 {
+    childP->parent = this;
     childList.push_back(childP);
 }
 
@@ -75,4 +81,42 @@ void WindowManager::appendChild(WindowManager* childP)
 unsigned int WindowManager::getNumOfChildren()
 {
     return childList.size();
+}
+
+
+int WindowManager::height()
+{
+    return getmaxy(baseWinP);
+}
+
+
+int WindowManager::width()
+{
+    return getmaxx(baseWinP);
+}
+
+
+WindowManager* WindowManager::getChildAtIndex(unsigned int index)
+{
+    if(index < childList.size())
+    {
+        return childList[index];
+    }
+    else
+    {
+        return NULL;
+    }
+    
+}
+
+
+WINDOW* WindowManager::getBase()
+{
+    return baseWinP;
+}
+
+
+void WindowManager::setBase(WINDOW* baseP)
+{
+    baseWinP = baseP;
 }

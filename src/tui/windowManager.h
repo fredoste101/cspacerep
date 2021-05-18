@@ -18,6 +18,13 @@ class WindowManager
 
         ~WindowManager();
 
+        int height();
+        int width();
+
+
+        WINDOW* getBase();
+
+        void setBase(WINDOW* baseP);
 
         void updateWindows();
 
@@ -25,7 +32,7 @@ class WindowManager
 
         void insertChild(unsigned int index, WindowManager* child);
 
-        WINDOW* getChildAtIndex(unsigned int index);
+        WindowManager* getChildAtIndex(unsigned int index);
 
         unsigned int getNumOfChildren();
 

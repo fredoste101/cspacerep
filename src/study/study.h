@@ -6,7 +6,7 @@
 #include "../notes/note.h"
 #include "../timeUtils.h"
 #include "../tui/tuiConstants.h"
-#include "../tui/tuiUtils.h"
+#include "../tui/tui.h"
 
 #define MAX_NOTES_TO_STUDY 50
 
