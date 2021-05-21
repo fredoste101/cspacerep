@@ -7,6 +7,13 @@ WindowManager::WindowManager()
 }
 
 
+WindowManager::WindowManager(int posY, int posX, int sizeY, int sizeX)
+{
+    parentP = NULL;
+    baseWinP = newwin(sizeY, sizeX, posY, posX);
+}
+
+
 WindowManager::WindowManager(WINDOW* baseP)
 {
     baseWinP = baseP;
@@ -32,6 +39,12 @@ WindowManager::~WindowManager()
 }
 
 
+void WindowManager::addStyle()
+{
+
+}
+
+
 void WindowManager::updateWindows()
 {
     wrefresh(baseWinP);
@@ -49,12 +62,19 @@ void WindowManager::updateWindows()
 
 void WindowManager::insertChild(unsigned int index, WindowManager* childP)
 {
-    childP->parent = this;
+    childP->parentP = this;
 
     std::vector<WindowManager*>::iterator it;
     it = childList.begin() + index;
 
     childList.insert(it, childP);
+}
+
+
+void WindowManager::clear()
+{
+    clearChildren();
+    wclear(baseWinP);
 }
 
 
@@ -73,12 +93,23 @@ void WindowManager::clearChildren()
 
 void WindowManager::appendChild(WindowManager* childP)
 {
-    childP->parent = this;
+    childP->parentP = this;
     childList.push_back(childP);
 }
 
 
+/**
+ * @depracated use numberOfChildren instead
+ * 
+ * @return unsigned int 
+ */
 unsigned int WindowManager::getNumOfChildren()
+{
+    return childList.size();
+}
+
+
+unsigned int WindowManager::numberOfChildren()
 {
     return childList.size();
 }
@@ -110,6 +141,12 @@ WindowManager* WindowManager::getChildAtIndex(unsigned int index)
 }
 
 
+void WindowManager::setParent(WindowManager* inParentP)
+{
+    parentP = inParentP;
+}
+
+
 WINDOW* WindowManager::getBase()
 {
     return baseWinP;
@@ -119,4 +156,28 @@ WINDOW* WindowManager::getBase()
 void WindowManager::setBase(WINDOW* baseP)
 {
     baseWinP = baseP;
+}
+
+
+int WindowManager::y()
+{
+    return getbegy(baseWinP);
+}
+
+
+int WindowManager::x()
+{
+    return getbegx(baseWinP);
+}
+
+
+void WindowManager::printCenter(std::string msg)
+{
+    unsigned int maxY, maxX;
+
+    getmaxyx(baseWinP, maxY, maxX);
+
+    wmove(baseWinP, maxY/2, (maxX - msg.length())/2);
+
+    wprintw(baseWinP, msg.c_str());
 }

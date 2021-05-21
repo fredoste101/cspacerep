@@ -42,7 +42,9 @@ class TUI
 
         void getOffsetInDayToStudy(programConfiguration* configP);
 
-        void listDecks(DeckContainer* deckContainerP);
+        void deckListPage(DeckContainer* deckContainerP);
+
+        void deckPage(deck* deckP);
 
         void showMenu();
 

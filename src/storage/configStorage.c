@@ -39,7 +39,7 @@ int readProgramConfigFile(programConfiguration* configP)
         if(memberRead != 1)
         {
             fclose(configFile);
-	    return -1;
+	        return -1;
         }
 
         fclose(configFile);
@@ -54,7 +54,7 @@ int saveProgrammingConfigFile(programConfiguration* configP)
 
     if(configFile == NULL)
     {
-	return -1;
+	    return -1;
     }
 
     fwrite(configP, 

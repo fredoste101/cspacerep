@@ -28,6 +28,7 @@ class DeckContainer
     private:
         std::vector<deck*>  deckList;
         std::fstream*       fileP;
+        std::string         fileName;
         unsigned int        fileSize;
         unsigned int        nextDeckId;
 

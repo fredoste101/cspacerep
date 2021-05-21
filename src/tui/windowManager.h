@@ -3,23 +3,28 @@
 
 #include <ncurses.h>
 #include <vector>
+#include <string>
 
 class WindowManager
 {
     private:
         WINDOW*                     baseWinP;
-        WindowManager*              parent;
+        WindowManager*              parentP;
         std::vector<WindowManager*> childList;
+        std::vector<std::string*>        styleList;
         
 
     public:
         WindowManager();
         WindowManager(WINDOW* baseP);
+        WindowManager(int posY, int posX, int sizeY, int sizeX);
 
         ~WindowManager();
 
         int height();
         int width();
+        int x();
+        int y();
 
 
         WINDOW* getBase();
@@ -36,7 +41,20 @@ class WindowManager
 
         unsigned int getNumOfChildren();
 
+        unsigned int numberOfChildren();
+
         void clearChildren();
+
+        void clear();
+
+        void setParent(WindowManager* inParentP);
+
+        void addStyle();
+
+
+        void printCenter(std::string msg);
+
+
 };
 
 

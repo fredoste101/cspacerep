@@ -1,4 +1,47 @@
 #include "tui.h"
+#include <stdlib.h>
+
+TUI::TUI()
+{
+    /* Initialzie window */
+    initscr();
+
+    /* Take in all characters written by user */
+    raw();
+
+    /* Enable keys (<- ^v ->)*/
+    keypad(stdscr, true);
+
+    /* Do not echo user input */
+    noecho();
+
+    /* Hide cursor */
+    curs_set(0);
+
+    if(has_colors())
+    {
+        start_color();
+        use_default_colors();
+    }
+    
+
+    base = WindowManager(stdscr);
+
+    int maxY;
+    int maxX;
+
+    getmaxyx(stdscr, maxY, maxX);
+
+    WINDOW* headerWinP  = newwin(HEADER_HEIGHT, maxX, 0, 0);
+    WINDOW* contentWinP = newwin(maxY - HEADER_HEIGHT, maxX, HEADER_HEIGHT, 0);
+    
+    WindowManager* headerP  = new WindowManager(headerWinP);
+    WindowManager* contentP = new WindowManager(contentWinP);
+
+    base.appendChild(headerP);
+    base.appendChild(contentP);
+    
+}
 
 
 WINDOW* TUI::getBox(unsigned int posY, 
@@ -88,36 +131,6 @@ void TUI::simpleBox(WINDOW* winP)
 
     wmove(winP, (height - 1), (width - 1));
     waddch(winP, '+');
-}
-
-
-TUI::TUI()
-{
-    /* Initialzie window */
-    initscr();
-
-    /* Take in all characters written by user */
-    //raw();
-
-    /* Do not echo user input */
-    noecho();
-
-    base = WindowManager(stdscr);
-
-    int maxY;
-    int maxX;
-
-    getmaxyx(stdscr, maxY, maxX);
-
-    WINDOW* headerWinP  = newwin(HEADER_HEIGHT, maxX, 0, 0);
-    WINDOW* contentWinP = newwin(maxY - HEADER_HEIGHT, maxX, HEADER_HEIGHT, 0);
-    
-    WindowManager* headerP  = new WindowManager(headerWinP);
-    WindowManager* contentP = new WindowManager(contentWinP);
-
-    base.appendChild(headerP);
-    base.appendChild(contentP);
-    
 }
 
 
@@ -307,23 +320,48 @@ void TUI::getOffsetInDayToStudy(programConfiguration* configP)
 }
 
 
-void TUI::listDecks(DeckContainer* deckContainerP)
+void TUI::deckListPage(DeckContainer* deckContainerP)
 {
     WindowManager* contentP = base.getChildAtIndex(1);  //Index 1 is the content
 
     contentP->clearChildren();
 
-    const unsigned int deckListElementHeight = 3;
-    const unsigned int deckListelementWidth = 20;
-
     int startY, startX;
 
-    getbegyx(contentP->getBase(), startY, startX);
+    startY = contentP->y();
+    startX = contentP->x();
 
-    startY += 2;
-    startX += 3;
 
-    for(unsigned int i = 0; i < deckContainerP->numOfDecks(); i++)
+    int listHeight = contentP->height() - 2;
+    int listWidth = 40;
+
+    WindowManager* deckListWinP = new WindowManager(contentP->y() + 1, 
+                                                    contentP->x() + 1,
+                                                    listHeight, 
+                                                    listWidth);
+
+    simpleBox(deckListWinP->getBase());
+
+    contentP->appendChild(deckListWinP);
+
+    deckListWinP->updateWindows();
+
+    unsigned int numOfDecksInList = listHeight - 2 / 3;
+
+    if(numOfDecksInList > deckContainerP->numOfDecks())
+    {
+        numOfDecksInList = deckContainerP->numOfDecks();
+    }
+
+    const unsigned int deckListElementHeight    = 3;
+    const unsigned int deckListelementWidth     = listWidth - 2;
+
+    startY = deckListWinP->y() + 1;
+    startX = deckListWinP->x() + 1;
+
+    bool firstElement = true;
+
+    for(unsigned int i = 0; i < numOfDecksInList; i++)
     {
         deck* currentDeckP = deckContainerP->getDeckByIndex(i);
 
@@ -332,29 +370,200 @@ void TUI::listDecks(DeckContainer* deckContainerP)
                               deckListElementHeight, 
                               deckListelementWidth);
 
+
         wrefresh(winP);
+
+        if(firstElement)
+        {
+            wattron(winP, A_BOLD);
+        }
 
         printCenter(winP, currentDeckP->name->c_str());
 
+        if(firstElement)
+        {
+            wattroff(winP, A_BOLD);
+        }
+
+        firstElement = false;
+        
         WindowManager* winManP = new WindowManager(winP);
 
-        contentP->appendChild(winManP);
+        deckListWinP->appendChild(winManP);
+
+        startY += 3;
     }
 
     contentP->updateWindows();
 
-    char ch = getch();
+    int currentDeckIndex = 0;
+
+    while(true)
+    {
+        chtype ch = getch();
+
+        if(ch == KEY_UP)
+        {
+            if(currentDeckIndex == 0)
+            {
+
+            }
+            else
+            {
+                WindowManager* childP = deckListWinP->getChildAtIndex(currentDeckIndex);
+
+                printCenter(childP->getBase(), deckContainerP->getDeckByIndex(currentDeckIndex)->name->c_str());
+
+                currentDeckIndex--;
+
+                childP = deckListWinP->getChildAtIndex(currentDeckIndex);
+
+                WINDOW* winP = childP->getBase();
+                wattron(winP, A_BOLD);
+                printCenter(winP, deckContainerP->getDeckByIndex(currentDeckIndex)->name->c_str());
+                wattroff(winP, A_BOLD);
+
+                deckListWinP->updateWindows();
+            }
+            
+        }
+        else if(ch == KEY_DOWN)
+        {
+
+            if((currentDeckIndex + 1) == deckListWinP->numberOfChildren())
+            {
+
+            }
+            else
+            {
+                WindowManager* childP = deckListWinP->getChildAtIndex(currentDeckIndex);
+
+                printCenter(childP->getBase(), deckContainerP->getDeckByIndex(currentDeckIndex)->name->c_str());
+
+                currentDeckIndex++;
+
+                childP = deckListWinP->getChildAtIndex(currentDeckIndex);
+
+                WINDOW* winP = childP->getBase();
+                wattron(winP, A_BOLD);
+                printCenter(winP, deckContainerP->getDeckByIndex(currentDeckIndex)->name->c_str());
+                wattroff(winP, A_BOLD);
+
+                deckListWinP->updateWindows();
+            }
+            
+        }
+        else if(ch == 27)
+        {
+            //Return when ESC
+            return;
+        }
+        else if(ch == KEY_ENTER || ch == '\n')
+        {
+            deckPage(deckContainerP->getDeckByIndex(currentDeckIndex));
+            return;
+        }
+        
+    }
+}
+
+
+void TUI::deckPage(deck* deckP)
+{
+    WindowManager* contentP = base.getChildAtIndex(1);  //Index 1 is the content
+
+    contentP->clearChildren();
+
+    contentP->updateWindows();
+
+    char buf[40];
+
+    sprintf(buf, "%d", deckP->id);
+
+    wmove(contentP->getBase(), 1, 2);
+
+
+    wprintw(contentP->getBase(), buf);
+
+    wmove(contentP->getBase(), 2, 2);
+
+    wprintw(contentP->getBase(), deckP->name->c_str());
+
+    contentP->updateWindows();
+
+
+    chtype ch = getch();
 }
 
 
 void TUI::createDeckForm(DeckContainer* deckCoontainerP)
 {
-     WindowManager* contentP = base.getChildAtIndex(1);
+    WindowManager* contentP = base.getChildAtIndex(1);
 
-     contentP->clearChildren();
+    contentP->clearChildren();
 
-     //TODO: form to give:
-     //name
+
+    WindowManager* formBoxP = new WindowManager(contentP->y() + 2, 
+                                                contentP->x() + 2,
+                                                6, 
+                                                50);
+
+    contentP->appendChild(formBoxP);
+
+    WINDOW* wP = formBoxP->getBase();
+
+    simpleBox(wP);
+
+    formBoxP->printCenter("Name of deck:");
+
+    contentP->updateWindows();
+
+    int c = 0;
+
+    int startX = 2;
+
+    std::string deckName;
+
+    while(true)
+    {
+        c = getch();
+
+        if(c == KEY_ENTER || c == '\n' || c == 10)
+        {
+            break;
+        }
+        else if(c == 27)
+        {
+            //if ESC return
+            return;
+        }
+        else if(c == KEY_BACKSPACE || c == KEY_DC || c == 127 || c == 8 || c == '\b')
+        {
+            if(startX > 2)
+            {
+                wmove(wP, 2, --startX);
+                waddch(wP, ' ');
+                deckName = deckName.substr(0, deckName.size()-1);
+            }
+        }
+        else
+        {
+            deckName += c;
+            wmove(wP, 2, startX++);
+            waddch(wP, c);
+        }
+
+        contentP->updateWindows();
+    }
+
+    deck* newDeckP = new deck();
+
+    newDeckP->name = new std::string();
+    
+    newDeckP->name->assign(deckName);
+
+    deckCoontainerP->addDeck(newDeckP);
+    
 }
 
 

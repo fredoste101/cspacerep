@@ -20,12 +20,14 @@ DeckContainer::~DeckContainer()
 }
 
 
-void DeckContainer::setFile(std::string fileName)
+void DeckContainer::setFile(std::string inFileName)
 {
- 
+    fileName.assign(inFileName);
+
     fileP->open(fileName.c_str(), 
                 std::ios::in | std::ios::out | std::ios::binary);
   
+
     if(!fileP->is_open())
     {
         fileSize = 0;
@@ -43,6 +45,8 @@ void DeckContainer::setFile(std::string fileName)
 
         fileP->seekg(0, std::ios::beg);
     }
+
+    fileP->close();
 }
 
 
@@ -65,7 +69,12 @@ void DeckContainer::setFile(std::string fileName)
  */
 void DeckContainer::save()
 {
+    fileP->open(fileName.c_str(), 
+                std::ios::out | std::ios::binary);
+
     unsigned int numOfDecks = deckList.size();
+
+    fprintf(stderr, "fileName=%s", fileName.c_str());
 
     char buffer[100];
 
@@ -100,8 +109,11 @@ void DeckContainer::save()
 
         memcpy(buffer, deckList[i]->name->c_str(), stringLength);
 
+        ///! @TODO What if stringLength is bigger than buffer?
         fileP->write(&buffer[0], stringLength);
     }
+
+    fileP->close();
 
 }
 
@@ -116,6 +128,8 @@ bool DeckContainer::load()
     }
     else
     {
+        fileP->open(fileName.c_str(), 
+                    std::ios::in | std::ios::binary);
         
         readDeckList();
 
@@ -175,9 +189,12 @@ bool DeckContainer::load()
 
         } 
         while (numOfBytesRead == (sizeof(char) * 100));
-        
+
+        fileP->close();
+
     }   
 
+    
     return true; 
 }
 
@@ -203,20 +220,33 @@ void DeckContainer::readDeckList()
     {
         memset(buf, 0, sizeof(char)*100);
 
-        deck* tmpDeck = new deck;
+        deck* tmpDeckP = new deck;
 
         fileP->read(buf, sizeof(deck));
 
-        memcpy(tmpDeck, buf, sizeof(deck));
+        memcpy(tmpDeckP, buf, sizeof(deck));
 
-        deckList.push_back(tmpDeck);
+        if (nextDeckId <= tmpDeckP->id)
+        {
+            nextDeckId = tmpDeckP->id;
+        }
+
+        deckList.push_back(tmpDeckP);
     }
+
+    nextDeckId++;
 }
 
 
 void DeckContainer::addDeck(deck* deckP)
 {
+    deckP->id                    = nextDeckId;
+    deckP->numOfNotes            = 0;
+    deckP->numOfNotesAllChildren = 0;
+    deckP->size                  = sizeof(deck);
+
     nextDeckId++;
+    
     deckList.push_back(deckP);
 }
 
