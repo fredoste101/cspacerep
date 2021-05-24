@@ -55,7 +55,7 @@ time_t getStudyTime(time_t currentTime,
 void removeNewlineAtEnd(char* string);
 
 
-int initConfiguration(programConfiguration* configP, TUI* tuiP);
+int initConfiguration(CSPACEREP::Config* configP, TUI* tuiP);
 
 
 void quit();
@@ -78,9 +78,7 @@ int main()
     
     CSPACEREP::Config myConfig;
 
-    programConfiguration config;
-
-    initConfiguration(&config, &tui);
+    //initConfiguration(&myConfig, &tui);
 
 
     //MAIN LOOP
@@ -88,7 +86,7 @@ int main()
     while(1)
     {
         
-        tui.showStartScreen();
+        tui.startPage();
 
         char choice = getch();
 
@@ -110,33 +108,27 @@ int main()
 
             case CREATE_DECK:
             {
-                tui.createDeckForm(&deckContainer);
+                tui.createDeckPage(&deckContainer);
             }
             break;
 
 
             case LIST_NOTES:
-                //listNotes(&notes);
             break;
 
             case STUDY:
-                //study(&config, &notes);
             break;
 
             case FLASHCARD_STUDY:
-                //flashcardStudy(&notes);
             break;
 
-            case CREATE_NOTE: break; //create note
-                //createNote(&config, &notes);
+            case CREATE_NOTE: break; 
             break;
 
             case CHANGE_NOTE: break;
-                //changeNote(&notes);
             break;
 
-            case DELETE_NOTE: break;//Remove note
-                //deleteNote(&config, &notes);
+            case DELETE_NOTE: break;
             break;
 
             default:
@@ -209,8 +201,11 @@ void removeNewlineAtEnd(char* string)
 }
 
 
-int initConfiguration(programConfiguration* configP, TUI* tuiP)
+int initConfiguration(CSPACEREP::Config* configP, TUI* tuiP)
 {
+    configP->setFileName(CONFIG_FILE);
+
+    /*
     if(!readProgramConfigFile(configP))
     {
         setDefaultConfigValues(configP);
@@ -219,4 +214,5 @@ int initConfiguration(programConfiguration* configP, TUI* tuiP)
     }
 
     tuiP->showConfigurationScreen(configP);
+    */
 }

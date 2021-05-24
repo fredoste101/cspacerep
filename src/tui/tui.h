@@ -1,4 +1,5 @@
 #pragma once
+
 #include <ncurses.h>
 #include <string.h>
 #include "windowManager.h"
@@ -26,31 +27,33 @@ class TUI
 
         void printCenter(WINDOW* winP, const char* str);
 
-        void simpleBox(WINDOW* winP);
+        void simpleBox(WindowManager* winManP);
 
-        WINDOW* getBox(unsigned int posY, 
-                       unsigned int posX, 
-                       unsigned int height, 
-                       unsigned int width);
+        WindowManager* getBox(unsigned int posY, 
+                              unsigned int posX, 
+                              unsigned int height, 
+                              unsigned int width);
+
+        void deckPage(WindowManager* contentP, deck* deckP);
+
+        void showMenu();
+
+        void showHeader();
 
     public:
         TUI();
 
         void showConfigurationScreen(programConfiguration* configP);
 
-        void showStartScreen();
+        void startPage();
 
         void getOffsetInDayToStudy(programConfiguration* configP);
 
         void deckListPage(DeckContainer* deckContainerP);
 
-        void deckPage(deck* deckP);
 
-        void showMenu();
 
-        void showHeader();
-
-        void createDeckForm(DeckContainer* deckCoontainerP);
+        void createDeckPage(DeckContainer* deckCoontainerP);
 
 };
 

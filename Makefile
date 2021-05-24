@@ -16,7 +16,7 @@ all : tmpBuild src/main.cpp memAlgo deck tui config
 	$(COMPILER) $(COMPILER_FLAGS) src/main.cpp src/note/note.c $(TMP_BUILD)/* $(NCURSES_LINK) -o build/cspacerep
 
 
-tmpBuild : build/tmp
+tmpBuild :
 	if [ -d $(TMP_BUILD) ]; then echo using $(TMP_BUILD); else mkdir build/tmp; fi
 
 
