@@ -12,8 +12,8 @@ debug : COMPILER_FLAGS=-g
 debug : all
 
 
-all : tmpBuild src/main.cpp memAlgo deck tui config
-	$(COMPILER) $(COMPILER_FLAGS) src/main.cpp src/note/note.c $(TMP_BUILD)/* $(NCURSES_LINK) -o build/cspacerep
+all : tmpBuild src/main.cpp memAlgo deck tui config note
+	$(COMPILER) $(COMPILER_FLAGS) src/main.cpp $(TMP_BUILD)/* $(NCURSES_LINK) -o build/cspacerep
 
 
 tmpBuild :
@@ -40,6 +40,9 @@ windowManager : src/tui/windowManager.cpp src/tui/windowManager.h
 deck : src/deck/deck.c src/deck/deck.h
 	$(COMPILER) $(COMPILER_FLAGS) $< -c -o $(TMP_BUILD)/deck.o
 
+
+note : src/note/noteContainer.cpp src/note/noteContainer.h
+	$(COMPILER) $(COMPILER_FLAGS) $< -c -o $(TMP_BUILD)/note.o
 
 configStorage : src/storage/configStorage.c
 	$(COMPILER) -c $< -o $(TMP_BUILD)/configStorage.o

@@ -5,7 +5,87 @@
  */ 
 void TUI::deckListPage(DeckContainer* deckContainerP)
 {
-    WindowManager* contentP = base.getChildAtIndex(1);  //Index 1 is the content
+    WindowManager* contentP = getContent();
+
+    WindowManager* deckListWinP = initDeckListPage(deckContainerP, contentP);
+
+
+    int currentDeckIndex = 0;
+
+    while(true)
+    {
+        chtype ch = getch();
+
+        if(ch == KEY_UP)
+        {
+            if(currentDeckIndex == 0)
+            {
+
+            }
+            else
+            {
+                WindowManager* childP = deckListWinP->getChildAtIndex(currentDeckIndex);
+
+                printCenter(childP->getBase(), deckContainerP->getDeckByIndex(currentDeckIndex)->name->c_str());
+
+                currentDeckIndex--;
+
+                childP = deckListWinP->getChildAtIndex(currentDeckIndex);
+
+                WINDOW* winP = childP->getBase();
+                wattron(winP, A_BOLD);
+                printCenter(winP, deckContainerP->getDeckByIndex(currentDeckIndex)->name->c_str());
+                wattroff(winP, A_BOLD);
+
+                deckListWinP->updateWindows();
+            }
+            
+        }
+        else if(ch == KEY_DOWN)
+        {
+
+            if((currentDeckIndex + 1) == deckListWinP->numberOfChildren())
+            {
+
+            }
+            else
+            {
+                WindowManager* childP = deckListWinP->getChildAtIndex(currentDeckIndex);
+
+                printCenter(childP->getBase(), deckContainerP->getDeckByIndex(currentDeckIndex)->name->c_str());
+
+                currentDeckIndex++;
+
+                childP = deckListWinP->getChildAtIndex(currentDeckIndex);
+
+                WINDOW* winP = childP->getBase();
+                wattron(winP, A_BOLD);
+                printCenter(winP, deckContainerP->getDeckByIndex(currentDeckIndex)->name->c_str());
+                wattroff(winP, A_BOLD);
+
+                deckListWinP->updateWindows();
+            }
+            
+        }
+        else if(ch == 27)
+        {
+            //Return when ESC
+            return;
+        }
+        else if(ch == KEY_ENTER || ch == '\n')
+        {
+            deckPage(contentP, deckContainerP, currentDeckIndex);
+            deckListWinP = initDeckListPage(deckContainerP, contentP);
+            currentDeckIndex = 0;
+        }
+        
+    }
+}
+
+
+WindowManager* TUI::initDeckListPage(DeckContainer* deckContainerP, WindowManager* contentP)
+{
+    printMenuHeader(" - Deck List");
 
     contentP->clearChildren();
 
@@ -79,73 +159,6 @@ void TUI::deckListPage(DeckContainer* deckContainerP)
 
     contentP->updateWindows();
 
-    int currentDeckIndex = 0;
 
-    while(true)
-    {
-        chtype ch = getch();
-
-        if(ch == KEY_UP)
-        {
-            if(currentDeckIndex == 0)
-            {
-
-            }
-            else
-            {
-                WindowManager* childP = deckListWinP->getChildAtIndex(currentDeckIndex);
-
-                printCenter(childP->getBase(), deckContainerP->getDeckByIndex(currentDeckIndex)->name->c_str());
-
-                currentDeckIndex--;
-
-                childP = deckListWinP->getChildAtIndex(currentDeckIndex);
-
-                WINDOW* winP = childP->getBase();
-                wattron(winP, A_BOLD);
-                printCenter(winP, deckContainerP->getDeckByIndex(currentDeckIndex)->name->c_str());
-                wattroff(winP, A_BOLD);
-
-                deckListWinP->updateWindows();
-            }
-            
-        }
-        else if(ch == KEY_DOWN)
-        {
-
-            if((currentDeckIndex + 1) == deckListWinP->numberOfChildren())
-            {
-
-            }
-            else
-            {
-                WindowManager* childP = deckListWinP->getChildAtIndex(currentDeckIndex);
-
-                printCenter(childP->getBase(), deckContainerP->getDeckByIndex(currentDeckIndex)->name->c_str());
-
-                currentDeckIndex++;
-
-                childP = deckListWinP->getChildAtIndex(currentDeckIndex);
-
-                WINDOW* winP = childP->getBase();
-                wattron(winP, A_BOLD);
-                printCenter(winP, deckContainerP->getDeckByIndex(currentDeckIndex)->name->c_str());
-                wattroff(winP, A_BOLD);
-
-                deckListWinP->updateWindows();
-            }
-            
-        }
-        else if(ch == 27)
-        {
-            //Return when ESC
-            return;
-        }
-        else if(ch == KEY_ENTER || ch == '\n')
-        {
-            deckPage(contentP, deckContainerP->getDeckByIndex(currentDeckIndex));
-            return;
-        }
-        
-    }
+    return deckListWinP;
 }

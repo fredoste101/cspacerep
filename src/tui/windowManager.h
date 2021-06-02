@@ -35,6 +35,8 @@ class WindowManager
 
         void appendChild(WindowManager* child);
 
+        void appendChildren(WindowManager** childListP, int num);
+
         void insertChild(unsigned int index, WindowManager* child);
 
         WindowManager* getChildAtIndex(unsigned int index);

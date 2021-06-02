@@ -2,21 +2,10 @@
 
 void TUI::startPage()
 {
-    showHeader();
+    printMenuHeader(" - Main Menu");
     showMenu();
 
     base.updateWindows();
-}
-
-
-void TUI::showHeader()
-{
-    WindowManager* headerP = base.getChildAtIndex(0);  //Index 0 is the header
-
-    WINDOW* headerWinP = headerP->getBase();
-
-    simpleBox(headerP);
-    printCenter(headerWinP, "*** CSPACEREP ***");
 }
 
 
@@ -49,8 +38,6 @@ void TUI::showMenu()
     {
         int startY = (menuStartY+2);
         int startX = (menuStartX+3) + i * 21;
-
-        fprintf(stderr, "\nstartY=%d startX=%d", startY, startX);
 
         WindowManager* winManP = getBox(startY, startX, 3, 20);
 

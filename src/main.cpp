@@ -9,6 +9,7 @@
 #include "note/note.h"
 #include "timeUtils.h"
 #include "deck/deck.h"
+#include "note/noteContainer.h"
 #include "config/config.h"
 
 #include "tui/tui.h"
@@ -58,9 +59,6 @@ void removeNewlineAtEnd(char* string);
 int initConfiguration(CSPACEREP::Config* configP, TUI* tuiP);
 
 
-void quit();
-
-
 int main()
 {
     TUI tui = TUI();
@@ -75,7 +73,14 @@ int main()
     {
         exit(1);
     }
+
+    NoteContainer noteContainer = NoteContainer(deckContainer.numOfDecks());
+
+    noteContainer.setFileName(NOTES_FILE);
     
+    tui.setDeckContainer(&deckContainer);
+    tui.setNoteContainer(&noteContainer);
+
     CSPACEREP::Config myConfig;
 
     //initConfiguration(&myConfig, &tui);
@@ -95,7 +100,7 @@ int main()
             case QUIT:
             {
                 deckContainer.save();
-                quit();
+                noteContainer.save();
                 return 0;
             }
             break;
@@ -138,12 +143,6 @@ int main()
     }
 
     return 0;
-}
-
-
-void quit()
-{
-    /* Automatically I think TUI destructor will be called, and all windows will be erased */
 }
 
 

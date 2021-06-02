@@ -10,6 +10,8 @@
 #include "pages/deck/deckPage.h"
 #include "pages/deck/createDeckPage.h"
 
+#include "pages/note/noteListPage.h"
+
 TUI::TUI()
 {
     /* Initialzie window */
@@ -40,12 +42,9 @@ TUI::TUI()
     int maxX;
 
     getmaxyx(stdscr, maxY, maxX);
-
-    WINDOW* headerWinP  = newwin(HEADER_HEIGHT, maxX, 0, 0);
-    WINDOW* contentWinP = newwin(maxY - HEADER_HEIGHT, maxX, HEADER_HEIGHT, 0);
     
-    WindowManager* headerP  = new WindowManager(headerWinP);
-    WindowManager* contentP = new WindowManager(contentWinP);
+    WindowManager* headerP  = getBox(0, 0, HEADER_HEIGHT, maxX);
+    WindowManager* contentP = getBox(HEADER_HEIGHT, 0, maxY - HEADER_HEIGHT, maxX); 
 
     base.appendChild(headerP);
     base.appendChild(contentP);
@@ -144,8 +143,6 @@ void TUI::simpleBox(WindowManager* winManP)
     wmove(winP, (height - 1), (width - 1));
     waddch(winP, '+');
 }
-
-
 
 
 void TUI::showConfigurationScreen(programConfiguration* configP)
@@ -328,4 +325,47 @@ void TUI::getOffsetInDayToStudy(programConfiguration* configP)
     refresh();
 
     configP->offsetInDayToStudy = hour * SECONDS_IN_HOUR + minute * SECONDS_IN_MINUTE;
+}
+
+
+WindowManager* TUI::getContent()
+{
+    return base.getChildAtIndex(1);
+}
+
+WindowManager* TUI::getHeader()
+{
+    return base.getChildAtIndex(0);
+}
+
+
+void TUI::printMenuHeader(std::string header)
+{
+    WindowManager* headerWinManP = getHeader();
+
+    //Clear current header
+    char buf[headerWinManP->width() - 2];
+
+    memset(buf, ' ', sizeof(char) * headerWinManP->width() - 2);
+
+    wmove(headerWinManP->getBase(), headerWinManP->height() / 2, 1);
+
+    wprintw(headerWinManP->getBase(), buf);
+
+    //Print new header
+    headerWinManP->printCenter("CSPACEREP" + header);
+
+    headerWinManP->updateWindows();
+}
+
+
+void TUI::setDeckContainer(DeckContainer* dcP)
+{
+    deckContainerP = dcP;
+}
+
+
+void TUI::setNoteContainer(NoteContainer* ncP)
+{
+    noteContainerP = ncP;
 }

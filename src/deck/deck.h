@@ -45,6 +45,7 @@ class DeckContainer
         void            save();
         void            addDeck(deck* deckP);
         deck*           getDeckByIndex(unsigned int index);
+        bool            removeDeckByIndex(unsigned int index);
         unsigned int    numOfDecks();
     
     private:

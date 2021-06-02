@@ -91,6 +91,15 @@ void WindowManager::clearChildren()
 }
 
 
+
+void WindowManager::appendChildren(WindowManager** childListP, int num)
+{
+    for(int i = 0; i < num; i++)
+    {
+        appendChild(childListP[i]);
+    }
+}
+
 void WindowManager::appendChild(WindowManager* childP)
 {
     childP->parentP = this;

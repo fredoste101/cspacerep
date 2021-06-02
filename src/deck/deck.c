@@ -74,8 +74,6 @@ void DeckContainer::save()
 
     unsigned int numOfDecks = deckList.size();
 
-    fprintf(stderr, "fileName=%s", fileName.c_str());
-
     char buffer[100];
 
     //Save numOfDecks
@@ -261,8 +259,23 @@ deck* DeckContainer::getDeckByIndex(unsigned int index)
     {
         return NULL;
     }
+}
 
-    
+
+bool DeckContainer::removeDeckByIndex(unsigned int index)
+{
+    if(index != 0 && index < deckList.size())
+    {
+        //Later on, must remove all relationships, and remove notes if any then...
+        // remove children or not?
+
+        deckList.erase(deckList.begin() + index);
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 
