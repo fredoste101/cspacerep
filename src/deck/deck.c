@@ -1,73 +1,12 @@
 
 #include "deck.h"
+#include "../utils/utils.h"
+
 #include <stdlib.h>
 #include <string.h>
 
 
-/**
- * @brief Reads in from file a list of strings one after the other, separeted by '\0' (classic c-string)
- *        A maximum of numOfStringsToRead is read. Then file pointer is set to end of last string.
- * 
- * @param fileP 
- * @param numOfStringsToRead 
- * @return std::vector<std::string*>* 
- */
-std::vector<std::string*>* binaryFileStringReader(std::fstream* fileP, 
-                                                  unsigned int numOfStringsToRead)
-{
 
-    std::vector<std::string*>* stringListP = new std::vector<std::string*>;
-
-    char buf[100];
-
-    unsigned int stringIndex = 0;
-
-
-    std::string currentString = "";
-
-    std::streamsize numOfBytesRead;
-
-    do
-    {
-
-        memset(buf, 0, sizeof(char) * 100);
-
-        fileP->read(buf, sizeof(char) * 100);
-
-        numOfBytesRead = fileP->gcount();
-
-        for(unsigned int i = 0; i < numOfBytesRead; i++)
-        {
-            if(buf[i] == '\0')
-            {
-
-                std::string* tmpStringP = new std::string();
-
-                tmpStringP->assign(currentString);
-
-                stringIndex++;
-
-                stringListP->push_back(tmpStringP);
-
-                if(stringIndex >= numOfStringsToRead)
-                {
-                    fileP->seekg(-(numOfBytesRead - i), std::ios_base::cur);
-                    fileP->seekp(-(numOfBytesRead - i), std::ios_base::cur);
-                    break;
-                }
-
-                currentString = "";
-            }
-            else
-            {
-                currentString += buf[i];
-            }
-        }
-    } 
-    while (numOfBytesRead == (sizeof(char) * 100) && stringIndex < numOfStringsToRead);
-
-    return stringListP;
-}
 
 
 DeckContainer::DeckContainer()

@@ -24,6 +24,9 @@ test : ./test/test.c src/study/memAlgo.c
 	$(COMPILER) $(COMPILER_FLAGS) -I ./src/study -o ./test/build/test.out ./test/test.c src/study/memAlgo.c 
 
 
+utils : src/utils/utils.cpp src/utils/utils.h
+	$(COMPILER) $(COMPILER_FLAGS) -c $< -o $(TMP_BUILD)/utils.o 
+
 
 config : src/config/config.cpp src/config/config.h
 	$(COMPILER) $(COMPILER_FLAGS) -c $< -o $(TMP_BUILD)/config.o
@@ -37,11 +40,11 @@ windowManager : src/tui/windowManager.cpp src/tui/windowManager.h
 	$(COMPILER) $(COMPILER_FLAGS) -c src/tui/windowManager.cpp $(NCURSES_LINK) -o $(TMP_BUILD)/windowManager.o 
 
 
-deck : src/deck/deck.c src/deck/deck.h
+deck : src/deck/deck.c src/deck/deck.h utils
 	$(COMPILER) $(COMPILER_FLAGS) $< -c -o $(TMP_BUILD)/deck.o
 
 
-note : src/note/noteContainer.cpp src/note/noteContainer.h
+note : src/note/noteContainer.cpp src/note/noteContainer.h utils
 	$(COMPILER) $(COMPILER_FLAGS) $< -c -o $(TMP_BUILD)/note.o
 
 configStorage : src/storage/configStorage.c
