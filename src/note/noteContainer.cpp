@@ -1,8 +1,10 @@
 #include "noteContainer.h"
 
 
-NoteContainer::NoteContainer(unsigned int numOfDecks)
+NoteContainer::NoteContainer(DeckContainer* dcP)
 {
+    deckContainerP = dcP;
+    unsigned int numOfDecks = dcP->numOfDecks();
     for(unsigned int i = 0; i < numOfDecks; i++)
     {
         deckNoteList.push_back(new std::vector<note*>());
@@ -26,7 +28,41 @@ void NoteContainer::load()
 {
     std::fstream noteFile(noteFileName.c_str(), std::ios::binary | std::ios::in);
 
+    char buf[100];
+
+    unsigned int numOfNotes = 0;
+
+    noteFile.read(buf, sizeof(numOfNotes));
     
+    memcpy(&numOfNotes, buf, sizeof(numOfNotes));
+
+    unsigned int currentDeckIndex = 0;
+
+    unsigned int currentDeckNumOfNotes = deckContainerP->getDeckByIndex(currentDeckIndex)->numOfNotes;
+
+
+    for(unsigned int i = 0; i < numOfNotes; i++)
+    {
+        while(currentDeckNumOfNotes == 0)
+        {
+            currentDeckIndex++;
+            fprintf(stderr, "currentDeckIndex: %u currentDeckNumOfNotes=%u", currentDeckIndex, currentDeckNumOfNotes);
+            currentDeckNumOfNotes = deckContainerP->getDeckByIndex(currentDeckIndex)->numOfNotes;
+        }
+
+        note* loadedNoteP = new note();
+        noteFile.read(buf, sizeof(note));
+        memcpy(loadedNoteP, buf, sizeof(note));
+
+        loadedNoteP->front = new std::string("Not what you ordered");
+        loadedNoteP->back = new std::string("Not what you ordered back");
+
+        loadedNoteP->deckP = deckContainerP->getDeckByIndex(currentDeckIndex);
+
+        deckNoteList[currentDeckIndex]->push_back(loadedNoteP);
+
+
+    }
 }
 
 

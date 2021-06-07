@@ -120,6 +120,9 @@ void TUI::deckPage(WindowManager* contentP, DeckContainer* deckContainerP, int d
                         tmpNote->front  = new std::string("Temporary test front");
                         tmpNote->back   = new std::string("Temporary test back");
 
+                        tmpNote->deckP->numOfNotes++;
+                        tmpNote->deckP->numOfNotesAllChildren++;
+
                         noteContainerP->addNote(deckIndex, tmpNote);
 
                     }

@@ -74,10 +74,12 @@ int main()
         exit(1);
     }
 
-    NoteContainer noteContainer = NoteContainer(deckContainer.numOfDecks());
+    NoteContainer noteContainer = NoteContainer(&deckContainer);
 
     noteContainer.setFileName(NOTES_FILE);
     
+    noteContainer.load();
+
     tui.setDeckContainer(&deckContainer);
     tui.setNoteContainer(&noteContainer);
 

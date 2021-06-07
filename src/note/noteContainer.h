@@ -10,10 +10,11 @@ class NoteContainer
 {
     private:
         std::string noteFileName;
+        DeckContainer* deckContainerP;
         std::vector< std::vector<note*>* > deckNoteList;   ///< a list (one per deck) of lists (notes)
 
     public:
-        NoteContainer(unsigned int numOfDecks);
+        NoteContainer(DeckContainer* dcP);
         ~NoteContainer();
 
         void setFileName(std::string fileName);
