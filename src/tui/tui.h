@@ -25,6 +25,7 @@ class TUI
 {
     private:
         WindowManager base; ///< base window. In this case, it is stdscr
+
         DeckContainer* deckContainerP;
         NoteContainer* noteContainerP;
 
@@ -49,11 +50,14 @@ class TUI
 
         WindowManager* initDeckPage(WindowManager* contentP, std::string* stringList);
 
+        WindowManager* initCreateNotePage();
 
         void noteListPage(unsigned int deckIndex);
 
 
         void printMenuHeader(std::string header);
+
+
 
     public:
         TUI();
@@ -71,6 +75,9 @@ class TUI
         void setDeckContainer(DeckContainer* dcP);
 
         void setNoteContainer(NoteContainer* ncP);
+
+
+        void createNotePage();
         
 
 };

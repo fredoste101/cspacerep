@@ -5,8 +5,8 @@
 
 #define NUM_OF_DECK_OPTIONS 5
 
-#define NOTE_LIST_INDEX 2
-#define NOTE_ADD_INDEX 3
+#define LIST_NOTE_INDEX 2
+#define CREATE_NOTE_INDEX 3
 #define REMOVE_DECK_INDEX 4
 
 void TUI::deckPage(WindowManager* contentP, DeckContainer* deckContainerP, int deckIndex)
@@ -101,15 +101,22 @@ void TUI::deckPage(WindowManager* contentP, DeckContainer* deckContainerP, int d
             {
                 switch(currentMenuIndex)
                 {  
-                    case NOTE_LIST_INDEX:
+                    case LIST_NOTE_INDEX:
                     {
                         noteListPage(deckIndex);
                         deckMenuWinManP = initDeckPage(contentP, stringList);
                         currentMenuIndex = 0;
                     }
                     break;
-                    case NOTE_ADD_INDEX:
+
+                    case CREATE_NOTE_INDEX:
                     {
+                        createNotePage();
+
+                        deckMenuWinManP = initDeckPage(contentP, stringList);
+                        currentMenuIndex = 0;
+
+                        /*
                         note* tmpNote = new note();
 
                         tmpNote->id     = 0;
@@ -124,12 +131,15 @@ void TUI::deckPage(WindowManager* contentP, DeckContainer* deckContainerP, int d
                         tmpNote->deckP->numOfNotesAllChildren++;
 
                         noteContainerP->addNote(deckIndex, tmpNote);
-
+                        */
                     }
                     break;
+
                     case REMOVE_DECK_INDEX:
                     {
-                        deckContainerP->removeDeckByIndex(deckIndex);
+                        //Cannot remove yet
+                        //Create page for this. remove all children? remove all notes? etc etc must be taken care of
+                        //deckContainerP->removeDeckByIndex(deckIndex);
                         return;
                     }
                     break;

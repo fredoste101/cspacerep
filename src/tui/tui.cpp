@@ -11,6 +11,7 @@
 #include "pages/deck/createDeckPage.h"
 
 #include "pages/note/noteListPage.h"
+#include "pages/note/createNotePage.h"
 
 TUI::TUI()
 {

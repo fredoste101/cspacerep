@@ -173,6 +173,12 @@ void NoteContainer::save()
 }
 
 
+void NoteContainer::addDeck()
+{
+    deckNoteList.push_back(new std::vector<note*>());
+}
+
+
 void NoteContainer::addNote(unsigned int deckIndex, note* noteToAddP)
 {
     deckNoteList[deckIndex]->push_back(noteToAddP);

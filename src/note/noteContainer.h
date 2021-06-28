@@ -23,7 +23,11 @@ class NoteContainer
 
         void save();
 
+        void addDeck();
+
         void addNote(unsigned int deckIndex, note* noteToAddP);
+
+        void removeNote(unsigned int deckIndex);    ///< @todo implement smartly
 
         std::vector<note*>* getNoteListByDeckIndex(unsigned int deckIndex);
 

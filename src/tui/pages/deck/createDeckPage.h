@@ -6,6 +6,8 @@ void TUI::createDeckPage(DeckContainer* deckCoontainerP)
 
     contentP->clearChildren();
 
+    printMenuHeader(" - Create Deck");
+
 
     WindowManager* formBoxP = new WindowManager(contentP->y() + 2, 
                                                 contentP->x() + 2,
@@ -67,5 +69,6 @@ void TUI::createDeckPage(DeckContainer* deckCoontainerP)
     newDeckP->name->assign(deckName);
 
     deckCoontainerP->addDeck(newDeckP);
+    noteContainerP->addDeck();
     
 }
