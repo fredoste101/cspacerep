@@ -2,7 +2,7 @@
 
 #include <ncurses.h>
 #include <string.h>
-#include "windowManager.h"
+#include <windowManager.h>
 #include "tuiConstants.h"
 #include "../config/config.h"
 #include "../timeUtils.h"

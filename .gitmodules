@@ -1,0 +1,3 @@
+[submodule "lib/cpplibrary"]
+	path = lib/cpplibrary
+	url = https://github.com/fredoste101/cpplibrary.git

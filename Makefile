@@ -6,6 +6,8 @@ NCURSES_LINK=-l ncurses
 
 TMP_BUILD=build/tmp
 
+WINDOW_MANAGER_DIR=lib/cpplibrary/tui/windowManager
+
 
 debug : COMPILER_FLAGS=-g
 
@@ -13,7 +15,7 @@ debug : all
 
 
 all : tmpBuild src/main.cpp memAlgo deck tui config note
-	$(COMPILER) $(COMPILER_FLAGS) src/main.cpp $(TMP_BUILD)/* $(NCURSES_LINK) -o build/cspacerep
+	$(COMPILER) $(COMPILER_FLAGS) src/main.cpp $(TMP_BUILD)/* $(NCURSES_LINK) -o build/cspacerep -I $(WINDOW_MANAGER_DIR)
 
 
 tmpBuild :
@@ -33,11 +35,14 @@ config : src/config/config.cpp src/config/config.h
 
 
 tui : src/tui/tui.cpp windowManager src/tui/tuiConstants.h src/tui/tui.h
-	$(COMPILER) $(COMPILER_FLAGS) -c $< $(NCURSES_LINK) -o $(TMP_BUILD)/tui.o
+	$(COMPILER) $(COMPILER_FLAGS) -c $< $(NCURSES_LINK) -o $(TMP_BUILD)/tui.o -I $(WINDOW_MANAGER_DIR)
 
 
-windowManager : src/tui/windowManager.cpp src/tui/windowManager.h
-	$(COMPILER) $(COMPILER_FLAGS) -c src/tui/windowManager.cpp $(NCURSES_LINK) -o $(TMP_BUILD)/windowManager.o 
+windowManager : lib/cpplibrary/tui/windowManager/windowManager.cpp lib/cpplibrary/tui/windowManager/windowManager.h 
+	cd $(WINDOW_MANAGER_DIR) && make && cd - && cp $(WINDOW_MANAGER_DIR)/windowManager.a $(TMP_BUILD)
+	
+	#src/tui/windowManager.cpp src/tui/windowManager.h
+	#$(COMPILER) $(COMPILER_FLAGS) -c src/tui/windowManager.cpp $(NCURSES_LINK) -o $(TMP_BUILD)/windowManager.o 
 
 
 deck : src/deck/deck.c src/deck/deck.h utils
