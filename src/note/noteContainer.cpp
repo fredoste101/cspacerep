@@ -35,6 +35,7 @@ void NoteContainer::load()
     unsigned int begin = noteFile.tellg();
 
     noteFile.seekg(0, std::ios::end);
+
     unsigned int end = noteFile.tellg();
 
     int fileSize = end - begin;
@@ -56,12 +57,41 @@ void NoteContainer::load()
 
     memcpy(&numOfNotes, buf, sizeof(numOfNotes));
 
+    
+    //Load all notes
+    std::vector<note*>* noteListP = loadNoteData(numOfNotes, &noteFile);
+
+    //Load all strings (front and back)
+    std::vector<std::string*>* noteStringListP = binaryFileStringReader(&noteFile, 
+                                                                        numOfNotes * 2);
+
+    if(noteStringListP->size() == 0)
+    {
+        fprintf(stderr, "\nERROR: no strings read :(\n");
+        exit(1);
+    }
+
+    fprintf(stderr, "\nnumOfNotes=%u size of noteStringList: %lu\n", numOfNotes, noteStringListP->size());
+
+    //Assign strings that was read to notes
+    for(unsigned int i = 0; i < noteListP->size(); i++)
+    {
+        noteListP->at(i)->front   = noteStringListP->at(i*2);
+        noteListP->at(i)->back    = noteStringListP->at(i*2 + 1);
+    }
+
+}
+
+
+std::vector<note*>* NoteContainer::loadNoteData(unsigned int numOfNotes, std::fstream* noteFileP)
+{
+
+    std::vector<note*>* noteListP = new std::vector<note*>();
+
     unsigned int currentDeckIndex = 0;
+    unsigned int currentDeckNumOfNotes = deckContainerP->getDeckByIndex(currentDeckIndex)->numOfNotes;
 
-    unsigned int currentDeckNumOfNotes = 
-        deckContainerP->getDeckByIndex(currentDeckIndex)->numOfNotes;
-
-    std::vector<note*> noteList;
+    char buf[100];
 
     for(unsigned int i = 0; i < numOfNotes; i++)
     {
@@ -73,38 +103,17 @@ void NoteContainer::load()
         }
 
         note* loadedNoteP = new note();
-        noteFile.read(buf, sizeof(note));
+        noteFileP->read(buf, sizeof(note));
         memcpy(loadedNoteP, buf, sizeof(note));
 
         loadedNoteP->deckP = deckContainerP->getDeckByIndex(currentDeckIndex);
 
         deckNoteList[currentDeckIndex]->push_back(loadedNoteP);
-        noteList.push_back(loadedNoteP);
-
-
+        noteListP->push_back(loadedNoteP);
     }
 
-    std::vector<std::string*>* noteStringListP = binaryFileStringReader(&noteFile, 
-                                                                        numOfNotes * 2);
-
-
-    if(noteStringListP->size() == 0)
-    {
-        fprintf(stderr, "\nERROR: no strings read :(\n");
-        exit(1);
-    }
-
-    fprintf(stderr, "\nnumOfNotes=%u size of noteStringList: %lu\n", numOfNotes, noteStringListP->size());
-
-    for(unsigned int i = 0; i < noteList.size(); i++)
-    {
-        
-        noteList[i]->front   = noteStringListP->at(i*2);
-        noteList[i]->back    = noteStringListP->at(i*2 + 1);
-    }
-
+    return noteListP;
 }
-
 
 
 /**

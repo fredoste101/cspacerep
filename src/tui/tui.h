@@ -6,7 +6,7 @@
 #include "tuiConstants.h"
 #include "../config/config.h"
 #include "../timeUtils.h"
-#include "../deck/deck.h"
+#include "../deck/deckContainer.h"
 #include "../note/noteContainer.h"
 
 
@@ -77,7 +77,7 @@ class TUI
         void setNoteContainer(NoteContainer* ncP);
 
 
-        void createNotePage();
+        note* createNotePage();
         
 
 };

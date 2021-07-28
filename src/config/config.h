@@ -6,7 +6,7 @@
 #include <iostream>
 #include <fstream>
 
-#include "../deck/deck.h"
+#include "../deck/deckContainer.h"
 #include "../note/note.h"
 
 
@@ -62,9 +62,7 @@ namespace CSPACEREP
 
             //GETTERS
             unsigned int getNextNoteId();
-
-        
-
+            
 
             //SETTERS - to validate input
             void setNextNoteId();

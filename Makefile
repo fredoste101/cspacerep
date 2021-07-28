@@ -45,7 +45,7 @@ windowManager : lib/cpplibrary/tui/windowManager/windowManager.cpp lib/cpplibrar
 	#$(COMPILER) $(COMPILER_FLAGS) -c src/tui/windowManager.cpp $(NCURSES_LINK) -o $(TMP_BUILD)/windowManager.o 
 
 
-deck : src/deck/deck.c src/deck/deck.h utils
+deck : src/deck/deckContainer.cpp src/deck/deckContainer.h utils
 	$(COMPILER) $(COMPILER_FLAGS) $< -c -o $(TMP_BUILD)/deck.o
 
 

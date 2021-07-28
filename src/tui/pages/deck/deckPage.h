@@ -111,27 +111,22 @@ void TUI::deckPage(WindowManager* contentP, DeckContainer* deckContainerP, int d
 
                     case CREATE_NOTE_INDEX:
                     {
-                        createNotePage();
+                        note* tmpNote = createNotePage();
 
                         deckMenuWinManP = initDeckPage(contentP, stringList);
                         currentMenuIndex = 0;
-
-                        /*
-                        note* tmpNote = new note();
+                      
 
                         tmpNote->id     = 0;
                         tmpNote->type   = TEXT;
                         tmpNote->deckP  = deckContainerP->getDeckByIndex(deckIndex);
                         tmpNote->size   = sizeof(note);
 
-                        tmpNote->front  = new std::string("Temporary test front");
-                        tmpNote->back   = new std::string("Temporary test back");
-
                         tmpNote->deckP->numOfNotes++;
                         tmpNote->deckP->numOfNotesAllChildren++;
 
                         noteContainerP->addNote(deckIndex, tmpNote);
-                        */
+                        
                     }
                     break;
 

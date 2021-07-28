@@ -6,7 +6,7 @@
 #include <string.h>
 #include <time.h>
 
-#include "../deck/deck.h"
+#include "../deck/deckContainer.h"
 
 typedef enum noteType
 {

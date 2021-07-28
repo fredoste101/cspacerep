@@ -7,44 +7,48 @@ typedef enum inputWin
     NOTE_BACK_INPUT
 } inputWin;
 
-void TUI::createNotePage()
+
+note* TUI::createNotePage()
 {
     WindowManager* createNoteContainerWinManP = initCreateNotePage();
 
     inputWin currentWin = NOTE_FRONT_INPUT;
-
-    std::string front;
-    std::string back;
-
+    std::string* noteStringList[2];
+    noteStringList[0] = new std::string();
+    noteStringList[1] = new std::string();
 
     wmove(createNoteContainerWinManP->getBase(), 1, 1);
 
-
     int inputChar = getch();
-
-    fprintf(stderr, "\nKEY_ENTER=%d", KEY_ENTER);
 
     while(inputChar != KEY_ENTER && inputChar != '\n')
     {
         switch(inputChar)
         {
-
             case KEY_BTAB:
-            {
-                fprintf(stderr, "\nKEY_BTAB PRESSED");
-            }
-            break;
-
             case '\t':
             {
-                fprintf(stderr, "\nTAB PRESSED");
+                if (currentWin == NOTE_FRONT_INPUT)
+                {
+                    currentWin = NOTE_BACK_INPUT;
+                }
+                else
+                {
+                    currentWin = NOTE_FRONT_INPUT;
+                }
             }
             break;
+
 
             default:
             {
-                waddch(createNoteContainerWinManP->getBase(), inputChar);
-                createNoteContainerWinManP->updateWindows();
+
+		        WindowManager* currentWinManP = createNoteContainerWinManP->getChildAtIndex(currentWin);
+		
+		        *noteStringList[currentWin] += inputChar;
+
+                waddch(currentWinManP->getBase(), inputChar);
+                        createNoteContainerWinManP->updateWindows();
             }
             break;
         }
@@ -54,8 +58,11 @@ void TUI::createNotePage()
         inputChar = getch();
     }   
 
-    
+    note* noteP 	= new note();
+    noteP->front    = noteStringList[0];
+    noteP->back     = noteStringList[1];
 
+    return noteP;
 }
 
 
@@ -84,7 +91,9 @@ WindowManager* TUI::initCreateNotePage()
                                               (createNoteWinManP->height() - 2) / 2, 
                                               createNoteWinManP->width() - 2);
 
-    
+    wmove(frontInputWinManP->getBase(), 1, 2);    
+    wmove(backInputWinManP->getBase(), 1, 2);    
+
     createNoteWinManP->appendChild(frontInputWinManP);
     createNoteWinManP->appendChild(backInputWinManP);
 

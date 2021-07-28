@@ -8,7 +8,7 @@
 
 #include "note/note.h"
 #include "timeUtils.h"
-#include "deck/deck.h"
+#include "deck/deckContainer.h"
 #include "note/noteContainer.h"
 #include "config/config.h"
 

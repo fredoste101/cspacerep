@@ -12,6 +12,8 @@ class NoteContainer
         std::string noteFileName;
         DeckContainer* deckContainerP;
         std::vector< std::vector<note*>* > deckNoteList;   ///< a list (one per deck) of lists (notes)
+	
+	std::vector<note*>* loadNoteData(unsigned int numOfNotes, std::fstream* noteFileP);
 
     public:
         NoteContainer(DeckContainer* dcP);
