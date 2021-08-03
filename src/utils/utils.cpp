@@ -8,7 +8,7 @@
  * 
  * @param fileP 
  * @param numOfStringsToRead 
- * @return std::vector<std::string*>* 
+ * @return vector of strings read: std::vector<std::string*>* 
  */
 std::vector<std::string*>* binaryFileStringReader(std::fstream* fileP, 
                                                   unsigned int numOfStringsToRead)
@@ -34,8 +34,6 @@ std::vector<std::string*>* binaryFileStringReader(std::fstream* fileP,
 
         numOfBytesRead = fileP->gcount();
 
-        fprintf(stderr, "numOfBytesRead=%lu", numOfBytesRead);
-
         for(unsigned int i = 0; i < numOfBytesRead; i++)
         {
             if(buf[i] == '\0')
@@ -46,8 +44,6 @@ std::vector<std::string*>* binaryFileStringReader(std::fstream* fileP,
                 tmpStringP->assign(currentString);
 
                 stringIndex++;
-
-                fprintf(stderr, "\nread %s\n", tmpStringP->c_str());
 
                 stringListP->push_back(tmpStringP);
 
@@ -67,8 +63,6 @@ std::vector<std::string*>* binaryFileStringReader(std::fstream* fileP,
         }
     } 
     while (numOfBytesRead == (sizeof(char) * BUFFER_NUM_OF_CHARS) && stringIndex < numOfStringsToRead);
-
-    fprintf(stderr, "\n%s\n", currentString.c_str());
 
     return stringListP;
 }

@@ -24,18 +24,7 @@
 #define MAX_NUM_OF_FLASHCARD_PILES 7
 
 
-typedef enum
-{
-  QUIT = 0,
-  LIST_DECKS,
-  CREATE_DECK,
-  LIST_NOTES,
-  STUDY,
-  FLASHCARD_STUDY,
-  CREATE_NOTE,
-  CHANGE_NOTE,
-  DELETE_NOTE
-} MAIN_MENU_CHOICES;
+
 
 
 void fatalError(const char* msg)
@@ -90,58 +79,11 @@ int main()
 
     //MAIN LOOP
 
-    while(1)
+    bool isStopProgram = false;
+
+    while(!isStopProgram)
     {
-        
-        tui.startPage();
-
-        char choice = getch();
-
-        switch(choice - 48)
-        {
-            case QUIT:
-            {
-                deckContainer.save();
-                noteContainer.save();
-                return 0;
-            }
-            break;
-
-            case LIST_DECKS:
-            {
-                tui.deckListPage(&deckContainer);
-            }
-            break;
-
-            case CREATE_DECK:
-            {
-                tui.createDeckPage(&deckContainer);
-            }
-            break;
-
-
-            case LIST_NOTES:
-            break;
-
-            case STUDY:
-            break;
-
-            case FLASHCARD_STUDY:
-            break;
-
-            case CREATE_NOTE: break; 
-            break;
-
-            case CHANGE_NOTE: break;
-            break;
-
-            case DELETE_NOTE: break;
-            break;
-
-            default:
-                //printf("\nwhat ey?\n");
-            break;
-        }
+        isStopProgram = tui.startPage();
     }
 
     return 0;

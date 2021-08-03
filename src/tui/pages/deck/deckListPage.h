@@ -16,69 +16,81 @@ void TUI::deckListPage(DeckContainer* deckContainerP)
     {
         chtype ch = getch();
 
-        if(ch == KEY_UP)
+        switch(ch)
         {
-            if(currentDeckIndex == 0)
+            case KEY_UP:
+            {
+                if(currentDeckIndex == 0)
+                {
+
+                }
+                else
+                {
+                    WindowManager* childP = deckListWinP->getChildAtIndex(currentDeckIndex);
+
+                    printCenter(childP->getBase(), deckContainerP->getDeckByIndex(currentDeckIndex)->name->c_str());
+
+                    currentDeckIndex--;
+
+                    childP = deckListWinP->getChildAtIndex(currentDeckIndex);
+
+                    WINDOW* winP = childP->getBase();
+                    wattron(winP, A_BOLD);
+                    printCenter(winP, deckContainerP->getDeckByIndex(currentDeckIndex)->name->c_str());
+                    wattroff(winP, A_BOLD);
+
+                    deckListWinP->updateWindows();
+                }
+            }
+            break;
+
+            case KEY_DOWN:
+            {
+                if((currentDeckIndex + 1) == deckListWinP->numberOfChildren())
+                {
+
+                }
+                else
+                {
+                    WindowManager* childP = deckListWinP->getChildAtIndex(currentDeckIndex);
+
+                    printCenter(childP->getBase(), deckContainerP->getDeckByIndex(currentDeckIndex)->name->c_str());
+
+                    currentDeckIndex++;
+
+                    childP = deckListWinP->getChildAtIndex(currentDeckIndex);
+
+                    WINDOW* winP = childP->getBase();
+                    wattron(winP, A_BOLD);
+                    printCenter(winP, deckContainerP->getDeckByIndex(currentDeckIndex)->name->c_str());
+                    wattroff(winP, A_BOLD);
+
+                    deckListWinP->updateWindows();
+                }
+            }
+            break;
+
+            case 27: //ESC
+            {
+                return;
+            }
+            break;
+
+            case KEY_ENTER:
+            case '\n':
+            {
+                deckPage(contentP, deckContainerP, currentDeckIndex);
+                deckListWinP = initDeckListPage(deckContainerP, contentP);
+                currentDeckIndex = 0;
+            }
+            break;
+
+            default:
             {
 
             }
-            else
-            {
-                WindowManager* childP = deckListWinP->getChildAtIndex(currentDeckIndex);
-
-                printCenter(childP->getBase(), deckContainerP->getDeckByIndex(currentDeckIndex)->name->c_str());
-
-                currentDeckIndex--;
-
-                childP = deckListWinP->getChildAtIndex(currentDeckIndex);
-
-                WINDOW* winP = childP->getBase();
-                wattron(winP, A_BOLD);
-                printCenter(winP, deckContainerP->getDeckByIndex(currentDeckIndex)->name->c_str());
-                wattroff(winP, A_BOLD);
-
-                deckListWinP->updateWindows();
-            }
-            
+            break;
         }
-        else if(ch == KEY_DOWN)
-        {
-
-            if((currentDeckIndex + 1) == deckListWinP->numberOfChildren())
-            {
-
-            }
-            else
-            {
-                WindowManager* childP = deckListWinP->getChildAtIndex(currentDeckIndex);
-
-                printCenter(childP->getBase(), deckContainerP->getDeckByIndex(currentDeckIndex)->name->c_str());
-
-                currentDeckIndex++;
-
-                childP = deckListWinP->getChildAtIndex(currentDeckIndex);
-
-                WINDOW* winP = childP->getBase();
-                wattron(winP, A_BOLD);
-                printCenter(winP, deckContainerP->getDeckByIndex(currentDeckIndex)->name->c_str());
-                wattroff(winP, A_BOLD);
-
-                deckListWinP->updateWindows();
-            }
-            
-        }
-        else if(ch == 27)
-        {
-            //Return when ESC
-            return;
-        }
-        else if(ch == KEY_ENTER || ch == '\n')
-        {
-            deckPage(contentP, deckContainerP, currentDeckIndex);
-            deckListWinP = initDeckListPage(deckContainerP, contentP);
-            currentDeckIndex = 0;
-        }
-        
     }
 }
 

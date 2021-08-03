@@ -74,6 +74,8 @@ void DeckContainer::setFile(std::string inFileName)
  */
 void DeckContainer::save()
 {
+    fprintf(stderr, "LOG: save deckContainer");
+
     fileP->open(fileName.c_str(), 
                 std::ios::out | std::ios::binary);
 
@@ -96,6 +98,8 @@ void DeckContainer::save()
     {
         memset(buffer, 0, sizeof(char) * 100);
 
+        fprintf(stderr, "\nLOG: save deck: id=%d numOfNotes=%d", deckList[i]->id, deckList[i]->numOfNotes);
+
         memcpy(buffer, deckList[i], sizeof(*deckList[i]));
 
         fileP->write(&buffer[0], sizeof(*deckList[i]));
@@ -117,6 +121,8 @@ void DeckContainer::save()
     }
 
     fileP->close();
+
+    fprintf(stderr, "LOG: deckContainer saved");
 
 }
 
@@ -176,6 +182,7 @@ void DeckContainer::readDeckList()
         memset(buf, 0, sizeof(char)*100);
 
         deck* tmpDeckP = new deck;
+
 
         fileP->read(buf, sizeof(deck));
 

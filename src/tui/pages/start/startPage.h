@@ -1,11 +1,60 @@
 #include "../../tui.h"
 
-void TUI::startPage()
+#define NUM_OF_MAIN_MENU_CHOICES 2
+
+
+typedef enum
+{
+  LIST_DECKS = 0,
+  CREATE_DECK,
+  LIST_NOTES,
+  STUDY,
+  FLASHCARD_STUDY,
+  CREATE_NOTE,
+  CHANGE_NOTE,
+  DELETE_NOTE
+} MAIN_MENU_CHOICES;
+
+bool TUI::startPage()
 {
     printMenuHeader(" - Main Menu");
     showMenu();
 
     base.updateWindows();
+
+    char choice = getch();
+
+    switch(choice)
+    {
+        case 27:    //ESC
+        {
+            deckContainerP->save();
+            noteContainerP->save();
+
+            return true;
+        }
+        break;
+
+        case LIST_DECKS + 48:
+        {
+            //This should really have create deck as well. just a + in the list
+            deckListPage(deckContainerP);
+        }
+        break;
+
+        case CREATE_DECK + 48:
+        {
+            createDeckPage(deckContainerP);
+        }
+        break;
+
+
+        default:
+            fprintf(stderr, "\nwhat ey?\n");
+        break;
+    }
+
+    return false;
 }
 
 
@@ -25,16 +74,15 @@ void TUI::showMenu()
     menuStartY = contentP->y();
 
 
-    const char* menuStringList[3] = 
+    const char* menuStringList[NUM_OF_MAIN_MENU_CHOICES] = 
     {
-        "0 QUIT", 
-        "1 LIST DECKS",
-        "2 CREATE DECK"
+        "0 LIST DECKS",
+        "1 CREATE DECK"
     };
 
     unsigned int i;
 
-    for(i = 0; i < 3; i++)
+    for(i = 0; i < NUM_OF_MAIN_MENU_CHOICES; i++)
     {
         int startY = (menuStartY+2);
         int startX = (menuStartX+3) + i * 21;

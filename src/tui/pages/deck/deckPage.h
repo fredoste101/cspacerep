@@ -113,19 +113,25 @@ void TUI::deckPage(WindowManager* contentP, DeckContainer* deckContainerP, int d
                     {
                         note* tmpNote = createNotePage();
 
+                        if (tmpNote != NULL)
+                        {
+                            
+                            currentMenuIndex = 0;
+                        
+                            tmpNote->id     = 0;
+                            tmpNote->type   = TEXT;
+                            tmpNote->deckP  = deckP;
+                            tmpNote->size   = sizeof(note);
+
+                            fprintf(stderr, "\nLOG: numOfNotes=%d", deckP->numOfNotes);
+
+                            deckP->numOfNotes++;
+                            deckP->numOfNotesAllChildren++;
+
+                            noteContainerP->addNote(deckIndex, tmpNote);
+                        }
+
                         deckMenuWinManP = initDeckPage(contentP, stringList);
-                        currentMenuIndex = 0;
-                      
-
-                        tmpNote->id     = 0;
-                        tmpNote->type   = TEXT;
-                        tmpNote->deckP  = deckContainerP->getDeckByIndex(deckIndex);
-                        tmpNote->size   = sizeof(note);
-
-                        tmpNote->deckP->numOfNotes++;
-                        tmpNote->deckP->numOfNotesAllChildren++;
-
-                        noteContainerP->addNote(deckIndex, tmpNote);
                         
                     }
                     break;

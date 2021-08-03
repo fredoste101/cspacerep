@@ -12,7 +12,7 @@ note* TUI::createNotePage()
 {
     WindowManager* createNoteContainerWinManP = initCreateNotePage();
 
-    inputWin currentWin = NOTE_FRONT_INPUT;
+    inputWin currentWinIndex = NOTE_FRONT_INPUT;
     std::string* noteStringList[2];
     noteStringList[0] = new std::string();
     noteStringList[1] = new std::string();
@@ -28,32 +28,63 @@ note* TUI::createNotePage()
             case KEY_BTAB:
             case '\t':
             {
-                if (currentWin == NOTE_FRONT_INPUT)
+                if (currentWinIndex == NOTE_FRONT_INPUT)
                 {
-                    currentWin = NOTE_BACK_INPUT;
+                    currentWinIndex = NOTE_BACK_INPUT;
                 }
                 else
                 {
-                    currentWin = NOTE_FRONT_INPUT;
+                    currentWinIndex = NOTE_FRONT_INPUT;
                 }
             }
             break;
+
+            case KEY_BACKSPACE:
+            case KEY_DC:
+            case 127:
+            case 8:
+            {
+                std::string* currentStringP = noteStringList[currentWinIndex];
+
+                if (currentStringP->size() > 0)
+                {
+                    currentStringP->pop_back();
+
+                    WindowManager* currentWinManP = createNoteContainerWinManP->getChildAtIndex(currentWinIndex);
+
+                    WINDOW* tmpWin = currentWinManP->getBase();
+
+                    int x, y;
+
+                    getyx(tmpWin, y, x);
+
+                    wmove(tmpWin, y, x - 1);
+                    waddch(tmpWin, ' ');
+                    wmove(tmpWin, y, x - 1);
+
+                    currentWinManP->updateWindows();
+                }
+            }
+            break;
+
+            case 27:
+            {
+                return NULL;
+            }
 
 
             default:
             {
 
-		        WindowManager* currentWinManP = createNoteContainerWinManP->getChildAtIndex(currentWin);
+		        WindowManager* currentWinManP = createNoteContainerWinManP->getChildAtIndex(currentWinIndex);
 		
-		        *noteStringList[currentWin] += inputChar;
+		        *noteStringList[currentWinIndex] += inputChar;
 
                 waddch(currentWinManP->getBase(), inputChar);
                         createNoteContainerWinManP->updateWindows();
             }
             break;
         }
-
-        fprintf(stderr, "\n%d", inputChar);
 
         inputChar = getch();
     }   

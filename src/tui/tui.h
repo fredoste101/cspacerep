@@ -64,7 +64,7 @@ class TUI
 
         void showConfigurationScreen(programConfiguration* configP);
 
-        void startPage();
+        bool startPage();   //Returns if program should be stopped or not
 
         void getOffsetInDayToStudy(programConfiguration* configP);
 

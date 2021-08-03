@@ -15,6 +15,10 @@ class NoteContainer
 	
 	std::vector<note*>* loadNoteData(unsigned int numOfNotes, std::fstream* noteFileP);
 
+    void saveNumOfNotes(std::fstream* noteFileP);
+    void saveNotes(std::fstream* noteFileP);
+    void saveNoteStrings(std::fstream* noteFileP);
+
     public:
         NoteContainer(DeckContainer* dcP);
         ~NoteContainer();
