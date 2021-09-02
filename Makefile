@@ -1,4 +1,4 @@
-COMPILER=g++
+COMPILER=g++ -std=c++11
 
 COMPILER_FLAGS=
 
@@ -8,6 +8,8 @@ TMP_BUILD=build/tmp
 
 WINDOW_MANAGER_DIR=lib/cpplibrary/tui/windowManager
 
+POPUP_DIR=lib/cpplibrary/tui/popup
+
 
 debug : COMPILER_FLAGS=-g
 
@@ -15,7 +17,7 @@ debug : all
 
 
 all : tmpBuild src/main.cpp memAlgo deck tui config note
-	$(COMPILER) $(COMPILER_FLAGS) src/main.cpp $(TMP_BUILD)/* $(NCURSES_LINK) -o build/cspacerep -I $(WINDOW_MANAGER_DIR)
+	$(COMPILER) $(COMPILER_FLAGS) src/main.cpp $(TMP_BUILD)/*.o $(TMP_BUILD)/*.a $(NCURSES_LINK) -o build/cspacerep -I $(WINDOW_MANAGER_DIR) -I $(POPUP_DIR)
 
 
 tmpBuild :
@@ -34,15 +36,16 @@ config : src/config/config.cpp src/config/config.h
 	$(COMPILER) $(COMPILER_FLAGS) -c $< -o $(TMP_BUILD)/config.o
 
 
-tui : src/tui/tui.cpp windowManager src/tui/tuiConstants.h src/tui/tui.h
-	$(COMPILER) $(COMPILER_FLAGS) -c $< $(NCURSES_LINK) -o $(TMP_BUILD)/tui.o -I $(WINDOW_MANAGER_DIR)
+tui : src/tui/tui.cpp windowManager popup src/tui/tuiConstants.h src/tui/tui.h
+	$(COMPILER) $(COMPILER_FLAGS) -c $< $(NCURSES_LINK) -o $(TMP_BUILD)/tui.o -I $(WINDOW_MANAGER_DIR) -I $(POPUP_DIR)
 
 
 windowManager : lib/cpplibrary/tui/windowManager/windowManager.cpp lib/cpplibrary/tui/windowManager/windowManager.h 
 	cd $(WINDOW_MANAGER_DIR) && make && cd - && cp $(WINDOW_MANAGER_DIR)/windowManager.a $(TMP_BUILD)
-	
-	#src/tui/windowManager.cpp src/tui/windowManager.h
-	#$(COMPILER) $(COMPILER_FLAGS) -c src/tui/windowManager.cpp $(NCURSES_LINK) -o $(TMP_BUILD)/windowManager.o 
+
+
+popup : lib/cpplibrary/tui/popup/popup.cpp lib/cpplibrary/tui/popup/popup.h 
+	cd $(POPUP_DIR) && make && cd - && cp $(POPUP_DIR)/popup.a $(TMP_BUILD)
 
 
 deck : src/deck/deckContainer.cpp src/deck/deckContainer.h utils

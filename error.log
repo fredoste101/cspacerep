@@ -1,0 +1,13 @@
+
+LOG: load notes
+currentDeckIndex: 1 currentDeckNumOfNotes=2
+currentDeckIndex: 1 currentDeckNumOfNotes=2
+numOfNotes=2 size of noteStringList: 4
+
+LOG: notes loadedLOG: save deckContainer
+LOG: save deck: id=0 numOfNotes=0
+LOG: save deck: id=1 numOfNotes=2LOG: deckContainer saved
+LOG: save noteContainer
+LOG: save note: id=0 front=hello deckId=1 deckName=yeah
+LOG: save note: id=0 front=my new note deckId=1 deckName=yeah
+LOG: noteContainer saved

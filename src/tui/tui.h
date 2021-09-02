@@ -3,6 +3,8 @@
 #include <ncurses.h>
 #include <string.h>
 #include <windowManager.h>
+#include <popup.h>
+
 #include "tuiConstants.h"
 #include "../config/config.h"
 #include "../timeUtils.h"
@@ -61,6 +63,8 @@ class TUI
 
     public:
         TUI();
+
+        ~TUI();
 
         void showConfigurationScreen(programConfiguration* configP);
 

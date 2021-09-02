@@ -50,7 +50,7 @@ bool TUI::startPage()
 
 
         default:
-            fprintf(stderr, "\nwhat ey?\n");
+            fprintf(stderr, "\nERROR: unknown menu choice=%d\n", choice);
         break;
     }
 

@@ -5,6 +5,7 @@
 
 #define NUM_OF_DECK_OPTIONS 5
 
+#define DECK_NAME_INDEX 1
 #define LIST_NOTE_INDEX 2
 #define CREATE_NOTE_INDEX 3
 #define REMOVE_DECK_INDEX 4
@@ -82,9 +83,11 @@ void TUI::deckPage(WindowManager* contentP, DeckContainer* deckContainerP, int d
                     childP = deckMenuWinManP->getChildAtIndex(currentMenuIndex);
 
                     WINDOW* winP = childP->getBase();
-                    wattron(winP, A_BOLD);
+                    childP->attributeOn(A_BOLD);
+                    //wattron(winP, A_BOLD);
                     childP->printCenter(stringList[currentMenuIndex]);
-                    wattroff(winP, A_BOLD);
+                    //wattroff(winP, A_BOLD);
+                    childP->attributeOff(A_BOLD);
 
                     deckMenuWinManP->updateWindows();
                 }
@@ -101,6 +104,21 @@ void TUI::deckPage(WindowManager* contentP, DeckContainer* deckContainerP, int d
             {
                 switch(currentMenuIndex)
                 {  
+                    case DECK_NAME_INDEX:
+                    {
+                        std::string tmp = std::string("New name:");
+                        std::string* newName = popupTextInput(&tmp);
+
+                        if(newName != NULL)
+                        {
+                            delete deckP->name;
+                            deckP->name = newName;
+                            stringList[1] = *deckP->name;
+                            deckMenuWinManP = initDeckPage(contentP, stringList);
+                        }
+                    }
+                    break;
+
                     case LIST_NOTE_INDEX:
                     {
                         noteListPage(deckIndex);

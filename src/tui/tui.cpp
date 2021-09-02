@@ -35,21 +35,27 @@ TUI::TUI()
         start_color();
         use_default_colors();
     }
-    
 
-    base = WindowManager(stdscr);
+    base.setBase(stdscr);
 
     int maxY;
     int maxX;
 
     getmaxyx(stdscr, maxY, maxX);
-    
+
+
     WindowManager* headerP  = getBox(0, 0, HEADER_HEIGHT, maxX);
     WindowManager* contentP = getBox(HEADER_HEIGHT, 0, maxY - HEADER_HEIGHT, maxX); 
 
     base.appendChild(headerP);
     base.appendChild(contentP);
     
+}
+
+
+TUI::~TUI()
+{
+
 }
 
 

@@ -48,7 +48,7 @@ note* TUI::createNotePage()
 
                 if (currentStringP->size() > 0)
                 {
-                    currentStringP->pop_back();
+                    currentStringP->assign(currentStringP->substr(0, currentStringP->length() - 1));
 
                     WindowManager* currentWinManP = createNoteContainerWinManP->getChildAtIndex(currentWinIndex);
 

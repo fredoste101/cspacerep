@@ -54,12 +54,14 @@ int main()
 
     DeckContainer deckContainer = DeckContainer();
 
+
     std::string deckFile = DECK_FILE;
 
     deckContainer.setFile(deckFile);
 
     if(!deckContainer.load())
     {
+        fprintf(stderr, "ERROR: could not load deckContainer");
         exit(1);
     }
 
@@ -85,6 +87,8 @@ int main()
     {
         isStopProgram = tui.startPage();
     }
+
+    
 
     return 0;
 }
